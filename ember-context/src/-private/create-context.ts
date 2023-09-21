@@ -56,6 +56,8 @@ export type EmberContext<T> = {
   Consumer: typeof ContextConsumer<T>;
 };
 
+export type contextValueType<T> = T extends EmberContext<infer U> ? U : never;
+
 export function createContext<T>(defaultValue?: T): EmberContext<T> {
   const contextId = uniqueId();
 
@@ -64,13 +66,16 @@ export function createContext<T>(defaultValue?: T): EmberContext<T> {
     defaultValue = defaultValue ?? null;
   }
   // @ts-ignore setComponentTemplate doesn't have the correct types
-  setComponentTemplate(hbs('{{yield}}'), Provider);
+  setComponentTemplate(hbs`{{! @glint-nocheck }}{{yield}}`, Provider);
 
   class Consumer extends ContextConsumer<T> {
     contextId = contextId;
   }
-  // @ts-ignore setComponentTemplate doesn't have the correct types
-  setComponentTemplate(hbs('{{yield this.contextValue}}'), Consumer);
+  setComponentTemplate(
+    // @ts-ignore setComponentTemplate doesn't have the correct types
+    hbs`{{! @glint-nocheck }}{{yield this.contextValue}}`,
+    Consumer,
+  );
 
   return { _id: contextId, Provider, Consumer };
 }
