@@ -1,12 +1,15 @@
 {
-  "name": "ember-context",
+  "name": "@customerio/ember-context",
   "version": "0.0.0",
   "description": "The default blueprint for Embroider v2 addons.",
   "keywords": [
     "ember-addon"
   ],
-  "repository": "",
-  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/customerio/ember-context.git"
+  },
+  "license": "CIO-Proprietary",
   "author": "",
   "exports": {
     ".": {

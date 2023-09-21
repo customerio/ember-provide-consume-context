@@ -1,7 +1,10 @@
 {
   "private": true,
-  "repository": "",
-  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/customerio/ember-context.git"
+  },
+  "license": "CIO-Proprietary",
   "author": "",
   "scripts": {
     "build": "npm run build --workspace ember-context",

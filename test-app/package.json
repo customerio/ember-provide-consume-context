@@ -3,8 +3,11 @@
   "version": "0.0.0",
   "private": true,
   "description": "Test app for ember-context addon",
-  "repository": "",
-  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/customerio/ember-context.git"
+  },
+  "license": "CIO-Proprietary",
   "author": "",
   "directories": {
     "doc": "doc",
@@ -75,7 +78,7 @@
     "ember-cli-sri": "^2.1.1",
     "ember-cli-terser": "^4.0.2",
     "ember-cli-typescript": "^5.2.1",
-    "ember-context": "^0.0.0",
+    "@customerio/ember-context": "^0.0.0",
     "ember-data": "~4.11.3",
     "ember-fetch": "^8.1.2",
     "ember-load-initializers": "^2.1.2",
