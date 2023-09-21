@@ -1,5 +1,57 @@
 {{page-title "TestApp"}}
 
-<h2 id="title">Welcome to Ember</h2>
+<div>
+  <p>
+    numberOne:
+    {{this.numberOne}}
+  </p>
+  <div>
+    <button
+      type="button"
+      {{on "click" (fn this.increment "numberOne")}}
+    >Increment numberOne</button>
+  </div>
+  <p>
+    numberTwo:
+    {{this.numberTwo}}
+  </p>
+  <div>
+    <button
+      type="button"
+      {{on "click" (fn this.increment "numberTwo")}}
+    >Increment numberTwo</button>
+  </div>
+</div>
+
+<div>
+  <this.NumberContext.Provider @value={{this.numberOne}}>
+    <div style="padding: 2px 12px; border: 1px solid purple;">
+      <p>numberOne provider, value should be: {{this.numberOne}}</p>
+
+      <TestComponent />
+      <BComponent />
+      <AComponent>
+        <BComponent />
+      </AComponent>
+
+      <this.NumberContext.Consumer as |val|>
+        <p>Consumer component. Context value: {{val}}</p>
+
+        <this.NumberContext.Provider @value={{this.numberTwo}}>
+          <div style="padding: 2px 12px; border: 1px solid purple;">
+            <p>numberTwo provider, value should be: {{this.numberTwo}}</p>
+
+            <TestComponent />
+
+            <this.NumberContext.Consumer as |val|>
+              <p>Consumer component, context value: {{val}}</p>
+            </this.NumberContext.Consumer>
+          </div>
+        </this.NumberContext.Provider>
+
+      </this.NumberContext.Consumer>
+    </div>
+  </this.NumberContext.Provider>
+</div>
 
 {{outlet}}
