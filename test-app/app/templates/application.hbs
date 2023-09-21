@@ -11,6 +11,7 @@
       {{on "click" (fn this.increment "numberOne")}}
     >Increment numberOne</button>
   </div>
+
   <p>
     numberTwo:
     {{this.numberTwo}}
@@ -31,12 +32,6 @@
     >
       <p>numberOne provider, value should be: {{this.numberOne}}</p>
 
-      <TestComponent />
-      <BComponent />
-      <AComponent>
-        <BComponent />
-      </AComponent>
-
       <this.NumberContext.Consumer as |val|>
         <p>Consumer component. Context value: {{val}}</p>
 
@@ -46,8 +41,6 @@
             {{! template-lint-disable no-inline-styles}}
           >
             <p>numberTwo provider, value should be: {{this.numberTwo}}</p>
-
-            <TestComponent />
 
             <this.NumberContext.Consumer as |val|>
               <p>Consumer component, context value: {{val}}</p>
