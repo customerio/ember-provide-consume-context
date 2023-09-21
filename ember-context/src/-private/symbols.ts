@@ -1,0 +1,1 @@
+export const CONTEXT_COMPONENT_INSTANCE_PROPERTY = Symbol();
