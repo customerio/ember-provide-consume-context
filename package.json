@@ -25,5 +25,8 @@
   "workspaces": [
     "ember-context",
     "test-app"
-  ]
+  ],
+  "dependencies": {
+    "@changesets/cli": "^2.26.2"
+  }
 }
