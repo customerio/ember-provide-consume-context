@@ -1,5 +1,4 @@
 import type ApplicationInstance from '@ember/application/instance';
-import type { DebugRenderTree } from '@glimmer/interfaces';
 import { CONTEXT_COMPONENT_INSTANCE_PROPERTY } from '../-private/symbols';
 import { ContextProvider } from '../-private/create-context';
 
@@ -8,19 +7,18 @@ export function initialize(applicationInstance: ApplicationInstance) {
 
   // Renderer is a private interface
   const renderer = owner.lookup('renderer:-dom') as any;
-  const debugRenderTree = renderer?.debugRenderTree as
-    | DebugRenderTree
-    | undefined;
+  // Glimmer doesn't expose the actual DebbugRenderTree class/type
+  const debugRenderTree = renderer?.debugRenderTree as any;
 
   if (debugRenderTree != null) {
     const originalCreate = debugRenderTree.create;
-    debugRenderTree.create = function (state, _node) {
+    debugRenderTree.create = function (state: any, _node: any) {
       originalCreate.call(debugRenderTree, state, _node);
 
       // nodeFor is a private method, not typed
       // the node itself would be of type InternalRenderNode, but that is also
       // not exposed
-      const node = (this as any).nodeFor(state);
+      const node = this.nodeFor(state);
       const { instance, parent } = node;
 
       if (instance == null) {

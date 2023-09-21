@@ -1,6 +1,6 @@
-import { babel } from '@rollup/plugin-babel';
 import copy from 'rollup-plugin-copy';
 import { Addon } from '@embroider/addon-dev/rollup';
+import ts from 'rollup-plugin-ts';
 
 const addon = new Addon({
   srcDir: 'src',
@@ -37,9 +37,11 @@ export default {
     //
     // By default, this will load the actual babel config from the file
     // babel.config.json.
-    babel({
-      extensions: ['.js', '.gjs', '.ts', '.gts'],
-      babelHelpers: 'bundled',
+    ts({
+      transpiler: 'babel',
+      transpileOnly: true,
+      babelConfig: './babel.config.json',
+      browserslist: ['last 2 firefox versions', 'last 2 chrome versions'],
     }),
 
     // Ensure that standalone .hbs files are properly integrated as Javascript.
