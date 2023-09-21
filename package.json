@@ -1,0 +1,26 @@
+{
+  "private": true,
+  "repository": "",
+  "license": "MIT",
+  "author": "",
+  "scripts": {
+    "build": "npm run build --workspace ember-context",
+    "lint": "npm run lint --workspaces --if-present",
+    "lint:fix": "npm run lint:fix --workspaces --if-present",
+    "prepare": "npm run build",
+    "start": "concurrently 'npm:start:*' --restart-after 5000 --prefix-colors cyan,white,yellow",
+    "start:addon": "npm start --workspace ember-context -- --no-watch.clearScreen",
+    "start:test-app": "npm start --workspace test-app",
+    "test": "npm run test --workspaces --if-present",
+    "test:ember": "npm run test:ember --workspaces --if-present"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.0",
+    "prettier": "^3.0.3",
+    "prettier-plugin-ember-template-tag": "^1.1.0"
+  },
+  "workspaces": [
+    "ember-context",
+    "test-app"
+  ]
+}
