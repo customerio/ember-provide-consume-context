@@ -1,12 +1,12 @@
 import Controller from '@ember/controller';
-import { createContext } from '@customerio/ember-context';
+import type { ContextKey } from '@customerio/ember-context';
 import { tracked } from '@glimmer/tracking';
 import { action } from '@ember/object';
 
-export const NumberContext = createContext<number>(5);
+export const numberContext = Symbol() as ContextKey<number>;
 
 export default class ApplicationController extends Controller {
-  NumberContext = NumberContext;
+  numberContext = numberContext;
 
   @tracked numberOne = 1;
   @tracked numberTwo = 1;

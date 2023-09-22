@@ -1,3 +1,2 @@
-export { createContext } from './-private/create-context';
-export type { contextValueType } from './-private/create-context';
+export type { ContextKey, ExtractContextType } from './-private/utils';
 export { inject } from './-private/inject';

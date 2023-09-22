@@ -1,6 +1,6 @@
 import type ApplicationInstance from '@ember/application/instance';
 import { CONTEXT_COMPONENT_INSTANCE_PROPERTY } from '../-private/symbols';
-import { ContextProvider } from '../-private/create-context';
+import ContextProvider from '../components/context-provider';
 
 export function initialize(applicationInstance: ApplicationInstance) {
   const owner = applicationInstance;
@@ -48,7 +48,7 @@ export function initialize(applicationInstance: ApplicationInstance) {
             ...node[CONTEXT_COMPONENT_INSTANCE_PROPERTY],
           };
         }
-        node[CONTEXT_COMPONENT_INSTANCE_PROPERTY][instance.id] = instance;
+        node[CONTEXT_COMPONENT_INSTANCE_PROPERTY][instance.key] = instance;
       }
 
       // Finally, copy the contexts object from the node to the instance, so

@@ -26,32 +26,32 @@
 
 <TestComponent />
 <div>
-  <this.NumberContext.Provider @value={{this.numberOne}}>
+  <ContextProvider @key={{this.numberContext}} @value={{this.numberOne}}>
     <div
       style="padding: 2px 12px; border: 1px solid purple;"
       {{! template-lint-disable no-inline-styles}}
     >
       <p>numberOne provider, value should be: {{this.numberOne}}</p>
 
-      <this.NumberContext.Consumer as |val|>
+      <ContextConsumer @key={{this.numberContext}} as |val|>
         <p>Consumer component. Context value: {{val}}</p>
 
-        <this.NumberContext.Provider @value={{this.numberTwo}}>
+        <ContextProvider @key={{this.numberContext}} @value={{this.numberTwo}}>
           <div
             style="padding: 2px 12px; border: 1px solid purple;"
             {{! template-lint-disable no-inline-styles}}
           >
             <p>numberTwo provider, value should be: {{this.numberTwo}}</p>
 
-            <this.NumberContext.Consumer as |val|>
+            <ContextConsumer @key={{this.numberContext}} as |val|>
               <p>Consumer component, context value: {{val}}</p>
-            </this.NumberContext.Consumer>
+            </ContextConsumer>
           </div>
-        </this.NumberContext.Provider>
+        </ContextProvider>
 
-      </this.NumberContext.Consumer>
+      </ContextConsumer>
     </div>
-  </this.NumberContext.Provider>
+  </ContextProvider>
 </div>
 
 {{outlet}}
