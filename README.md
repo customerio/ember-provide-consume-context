@@ -15,109 +15,96 @@ ember install @customerio/ember-context
 ```
 
 ## Usage
-A new context can be created with the `createContext` function:
-
-```ts
-import { createContext } from '@customerio/ember-context';
-
-export const ThemeContext = createContext<'dark' | 'light'>('light');
-```
-
-The function returns an object which contains two properties: `Provider` and
-`Consumer`, both of which are Glimmer components.
-
-The `Provider` component allows us to provide a context value to anything that's
-nested within it. It accepts a `@value` argument, which will be the context's
-value.
-
-```ts
-import Component from '@glimmer/component';
-import { ThemeContext } from 'my-app/contexts/theme';
-
-export default class MyComponent extends Component {
-  ThemeContext = ThemeContext;
-
-  @tracked theme = 'light';
-}
-```
+A new context can be created by using the `ContextProvider` component:
 
 ```hbs
-<this.ThemeContext.Provider @value={{this.theme}}>
-  ... anything inside here, no matter how deeply nested, will have access to the value...
-</this.ThemeContext.Provider>
+<ContextProvider @key="my-key" @value={{this.someValue}}>
+  ...
+</ContextProvider>
 ```
 
-
-The `Consumer` component can then be used to retrieve the value of the context
-anywhere within the `Provider`s tree:
-```ts
-import Component from '@glimmer/component';
-import { ThemeContext } from 'my-app/contexts/theme';
-
-export default class MyChildComponent extends Component {
-  ThemeContext = ThemeContext;
-}
-```
-
+The `value` can then be consumed in any descendant of that provider component by
+using the `ContextConsumer` component:
 ```hbs
-<this.ThemeContext.Consumer as |value|>
+<ContextConsumer @key="my-key" as |value|>
   {{value}}
-</this.ThemeContext.Consumer>
+</ContextConsumer>
 ```
-
-The above would print `light`, which is the current value of the context. If the
-context value is a tracked property and it changes, the consumers will update
-accordingly.
 
 ### `inject`
-A context can also be consumed from within a component class, similarly to how
+A context can also be retrieved from within a component class, similarly to how
 Ember Services are consumed:
-
 
 ```ts
 import Component from '@glimmer/component';
-import { ThemeContext } from 'my-app/contexts/theme';
-import { inject as context, type contextValueType } from '@customerio/ember-context';
+import { inject as context } from '@customerio/ember-context';
 
 export default class MyChildComponent extends Component {
-  @context(ThemeContext) theme!: contextValueType<typeof ThemeContext>;
+  @context('my-key') myContextValue!: string;
+}
+```
+
+### TypeScript
+For typing the context values, we expose a `ContextKey` interface. It's a
+generic interface that extends `Symbol` and accepts the type of the value we're
+intending to use within the context:
+
+```ts
+import Component from '@glimmer/component';
+import type { ContextKey } from '@customerio/ember-context';
+
+const myContext = Symbol() as ContextKey<string>;
+
+export default class MyComponent extends Component {
+  myContext = myContext;
 }
 ```
 
 ```hbs
-<div ...attributes>
- {{this.theme}}
-</div>
+<ContextProvider @key={{this.myContext}} @value={{this.someValue}}>
+  ...
+</ContextProvider>
 ```
 
-This would also print `light`, and would update when the context value changes.
+The symbol can then be imported wherever we intend to consume the value:
+```hbs
+<ContextConsumer @key={{this.myContext}} as |value|>
+  {{value}}
+  {{!-- In Glint-enabled projects, value will infer the correct type thanks to
+        the myContext generic --}}
+</ContextConsumer>
+```
 
-With this decorator, context values can also be used in getters:
+Similarly, the `inject` decorator can accept the context symbol. We also include
+a utility `ExtractContextType` type, which makes it easier to extract the type
+of the context's value:
 
 ```ts
 import Component from '@glimmer/component';
-import { ThemeContext } from 'my-app/contexts/theme';
-import { inject as context, type contextValueType } from '@customerio/ember-context';
+import { inject as context, type ExtractContextType } from '@customerio/ember-context';
+import { myContext } from './somewhere';
 
 export default class MyChildComponent extends Component {
-  @context(ThemeContext) theme!: contextValueType<typeof ThemeContext>;
+  @context(myContext) myContextValue!: ExtractContextType<typeof myContext>;
 
-  get classNames() {
-    if (this.theme === 'light') {
-      return 'theme-light';
-    } else if (this.theme === 'dark') {
-      return 'theme-dark';
-    }
+  get someComputed() {
+    // myContextValue will be recognized as a string
+    return this.myContextValue;
   }
 }
 ```
 
+
 ## Inspiration
 The idea was to create an API similar to the Context API in React
 - [`React Context API`](https://react.dev/reference/react/createContext): The
-  addon aims to implement a context API for Ember that resembles how React
-  handles contexts (where React's `useContext` hook is replaced by the `inject`
-  decorator, which is more Ember idiomatic)
+  original inspiration for this project is, of course, the React Context
+- [`Svelte Context API`](https://svelte.dev/docs/svelte#setcontext): Svelte
+  exposes contexts via simple `setContext` and `getContext` functions, but
+  provides no built-in way to assign and extract types
+- [`Vue provide/inject`](https://vuejs.org/guide/components/provide-inject.html#provide):
+  Our addon borrows the Symbol-based key and TypeScript approach, which allows
+  us to infer types from context keys
 - [`ember-context`](https://github.com/alexlafroscia/ember-context): Another
   Ember addon that also implements a similar Context API. However, that addon's
   implementation relies has providers racing on a provider key, while our addon
