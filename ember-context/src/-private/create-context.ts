@@ -4,7 +4,6 @@ import { hbs } from 'ember-cli-htmlbars';
 import { getContextValue, hasContext } from './utils';
 
 interface ContextProviderSignature<T> {
-  Element: null;
   Args: {
     value: T;
   };
@@ -24,8 +23,6 @@ export abstract class ContextProvider<T> extends Component<
 }
 
 interface ContextConsumerSignature<T> {
-  Element: null;
-  Args: Record<string, never>;
   Blocks: {
     default: [T];
   };
