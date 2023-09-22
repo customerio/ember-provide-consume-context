@@ -2,7 +2,6 @@ import Component from '@glimmer/component';
 import type { ContextKey } from '../-private/utils';
 
 interface ContextProviderSignature<T, K = ContextKey<T> | string> {
-  Element: null;
   Args: {
     key: K;
     value: K extends ContextKey<infer V> ? V : T;

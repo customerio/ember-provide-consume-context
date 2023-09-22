@@ -6,7 +6,6 @@ import {
 } from '../-private/utils';
 
 interface ContextConsumerSignature<T> {
-  Element: null;
   Args: {
     key: ContextKey<T> | string;
     defaultValue?: T;
