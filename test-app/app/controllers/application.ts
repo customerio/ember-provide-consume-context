@@ -3,7 +3,7 @@ import { createContext } from '@customerio/ember-context';
 import { tracked } from '@glimmer/tracking';
 import { action } from '@ember/object';
 
-export const NumberContext = createContext<number>(0);
+export const NumberContext = createContext<number>(5);
 
 export default class ApplicationController extends Controller {
   NumberContext = NumberContext;

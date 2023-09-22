@@ -1,7 +1,7 @@
 import Component from '@glimmer/component';
 import { setComponentTemplate } from '@ember/component';
 import { hbs } from 'ember-cli-htmlbars';
-import { getContextValue } from './get-context-value';
+import { getContextValue, hasContext } from './utils';
 
 interface ContextProviderSignature<T> {
   Element: null;
@@ -17,10 +17,9 @@ export abstract class ContextProvider<T> extends Component<
   ContextProviderSignature<T>
 > {
   abstract id: string;
-  abstract defaultValue: T | null;
 
-  get value(): T | null {
-    return this.args.value ?? this.defaultValue;
+  get value(): T {
+    return this.args.value;
   }
 }
 
@@ -36,9 +35,14 @@ export abstract class ContextConsumer<T> extends Component<
   ContextConsumerSignature<T>
 > {
   abstract contextId: string;
+  abstract defaultValue?: T;
 
   get contextValue() {
-    return getContextValue(this, this.contextId) as T | null;
+    if (hasContext(this, this.contextId)) {
+      return getContextValue(this, this.contextId) as T;
+    }
+
+    return this.defaultValue;
   }
 }
 
@@ -52,6 +56,7 @@ export function uniqueId(): string {
 
 export type EmberContext<T> = {
   _id: string;
+  _defaultValue: T | null;
   Provider: typeof ContextProvider<T>;
   Consumer: typeof ContextConsumer<T>;
 };
@@ -63,13 +68,13 @@ export function createContext<T>(defaultValue?: T): EmberContext<T> {
 
   class Provider extends ContextProvider<T> {
     id = contextId;
-    defaultValue = defaultValue ?? null;
   }
   // @ts-ignore setComponentTemplate doesn't have the correct types
   setComponentTemplate(hbs`{{! @glint-nocheck }}{{yield}}`, Provider);
 
   class Consumer extends ContextConsumer<T> {
     contextId = contextId;
+    defaultValue = defaultValue;
   }
   setComponentTemplate(
     // @ts-ignore setComponentTemplate doesn't have the correct types
@@ -77,5 +82,10 @@ export function createContext<T>(defaultValue?: T): EmberContext<T> {
     Consumer,
   );
 
-  return { _id: contextId, Provider, Consumer };
+  return {
+    _id: contextId,
+    _defaultValue: defaultValue ?? null,
+    Provider,
+    Consumer,
+  };
 }
