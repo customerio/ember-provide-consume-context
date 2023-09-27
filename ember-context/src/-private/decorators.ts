@@ -1,7 +1,8 @@
+import type ContextRegistry from '../context-registry';
 import { DECORATED_PROPERTY_CLASSES } from './provide-consume-context-container';
 import { getContextValue, hasContext } from './utils';
 
-export function provide(contextKey: string) {
+export function provide(contextKey: keyof ContextRegistry) {
   return function decorator(target: any, key: string) {
     // Track the class as having a decorated property. Later, this will be used
     // on instances of this component to register them as context providers.
@@ -19,10 +20,12 @@ export function provide(contextKey: string) {
   };
 }
 
-export function consume(contextKey: string): PropertyDecorator {
+export function consume<K extends keyof ContextRegistry>(
+  contextKey: K,
+): PropertyDecorator {
   return function decorator() {
     return {
-      get() {
+      get(): ContextRegistry[K] | null | undefined {
         if (hasContext(this, contextKey)) {
           return getContextValue(this, contextKey);
         }

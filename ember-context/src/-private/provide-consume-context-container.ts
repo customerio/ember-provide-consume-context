@@ -1,11 +1,12 @@
 import type { ComponentInstance } from '@glimmer/interfaces';
 import { Stack } from '@glimmer/util';
+import type ContextRegistry from '../context-registry';
 
 // Map of component class that contain @provide decorated properties, with their
 // respective context keys and property names
 export const DECORATED_PROPERTY_CLASSES = new WeakMap<
   any,
-  Record<string, string>
+  Record<keyof ContextRegistry, string>
 >();
 // Map of instances of the ContextProvider component, or components that contain
 // @provide decorated properties
@@ -13,7 +14,10 @@ export const PROVIDER_INSTANCES = new WeakMap<any, Record<string, string>>();
 
 export function trackProviderInstanceContexts(
   instance: any,
-  contextDefinitions: [contextKey: string, propertyKey: string][],
+  contextDefinitions: [
+    contextKey: keyof ContextRegistry,
+    propertyKey: string,
+  ][],
 ) {
   const currentContexts = PROVIDER_INSTANCES.get(instance);
   if (currentContexts == null) {
@@ -27,7 +31,7 @@ export function trackProviderInstanceContexts(
 }
 
 interface Contexts {
-  [contextKey: string]: ContextEntry;
+  [contextKey: keyof ContextRegistry]: ContextEntry;
 }
 
 interface ContextEntry {
@@ -87,7 +91,7 @@ export class ProvideConsumeContextContainer {
         if (contextKeys != null) {
           trackProviderInstanceContexts(
             actualComponentInstance,
-            Object.entries(contextKeys),
+            Object.entries(contextKeys) as [keyof ContextRegistry, string][],
           );
         }
       }

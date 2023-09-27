@@ -24,6 +24,7 @@ export default {
       'initializers/**/*.js',
       'index.js',
       'template-registry.js',
+      'context-registry.js',
     ]),
 
     // These are the modules that should get reexported into the traditional
