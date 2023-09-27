@@ -14,3 +14,17 @@ export function inject<T>(context: EmberContext<T>): PropertyDecorator {
     };
   };
 }
+
+export function inject2(context: string): PropertyDecorator {
+  return function decorator() {
+    return {
+      get() {
+        if (hasContext(this, context)) {
+          return getContextValue(this, context);
+        }
+
+        return null;
+      },
+    };
+  };
+}

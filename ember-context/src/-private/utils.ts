@@ -28,6 +28,6 @@ export function getContextValue(owner: any, contextId: string) {
   if (!hasContext(owner, contextId)) {
     return undefined;
   }
-  const provider = getProvider(owner, contextId);
-  return provider.value;
+  const providerObj = getProvider(owner, contextId);
+  return providerObj.instance[providerObj.key];
 }

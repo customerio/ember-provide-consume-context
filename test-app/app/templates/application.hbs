@@ -36,6 +36,11 @@
 
 <TestComponent />
 
+<CustomProvider @value={{this.numberTwo}}>
+  <p>CustomProvider</p>
+  <TestComponent />
+</CustomProvider>
+
 <div>
   <this.NumberContext.Provider @value={{this.numberOne}}>
     {{page-title "TestApp"}}

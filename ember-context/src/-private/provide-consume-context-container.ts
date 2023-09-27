@@ -1,5 +1,7 @@
-import { ContextProvider } from './create-context';
 import { Stack } from './stack';
+
+export const PROVIDER_CLASSES = new WeakMap<any, any>();
+export const PROVIDED_PROPS = new WeakMap<any, any>();
 
 export class ProvideConsumeContextContainer {
   private stack = new Stack();
@@ -31,12 +33,14 @@ export class ProvideConsumeContextContainer {
   }
 
   enter(instance: any): void {
+    const componentDefinitionClass = instance.definition.state;
     const actualComponentInstance = (instance?.state as any)?.component;
 
     if (actualComponentInstance != null) {
+      const isProvider = PROVIDER_CLASSES.has(componentDefinitionClass);
       // TODO: Can the Provider component be built into Glimmer? Should we do this
       // with some sort of manager?
-      if (actualComponentInstance instanceof ContextProvider) {
+      if (isProvider) {
         this.registerProvider(actualComponentInstance);
       } else {
         this.registerComponent(actualComponentInstance);
@@ -57,6 +61,8 @@ export class ProvideConsumeContextContainer {
   private registerProvider(provider: any) {
     const { current } = this;
 
+    const registeredContexts = PROVIDER_CLASSES.get(provider.constructor);
+
     let providerContexts: Record<any, any> = {};
     if (this.contexts.has(current)) {
       // If a provider is nested within another provider, we merge their
@@ -70,7 +76,16 @@ export class ProvideConsumeContextContainer {
     // "id", which is then used to retrieve the context value.
     // TODO: Similar to the TODO in "enter" below, how do we make this less
     // coupled to a Provider implementation that doesn't exist in here?
-    providerContexts[provider.id] = provider;
+    // providerContexts[provider.id] = provider;
+
+    Object.entries(registeredContexts).forEach(
+      ([contextKey, key]: [any, any]) => {
+        providerContexts[contextKey] = {
+          instance: provider,
+          key,
+        };
+      },
+    );
 
     this.contexts.set(provider, providerContexts);
   }
