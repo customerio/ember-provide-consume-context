@@ -5,9 +5,3 @@ declare module 'test-app/templates/*' {
   const tmpl: TemplateFactory;
   export default tmpl;
 }
-
-declare module '@customerio/ember-context/context-registry' {
-  export default interface ContextRegistry {
-    testContext: string;
-  }
-}
