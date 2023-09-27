@@ -1,38 +1,34 @@
-import {
-  PROVIDED_PROPS,
-  PROVIDER_CLASSES,
-} from './provide-consume-context-container';
+import { DECORATED_PROPERTY_CLASSES } from './provide-consume-context-container';
+import { getContextValue, hasContext } from './utils';
 
 export function provide(contextKey: string) {
-  return function decorator(
-    target: any,
-    key: string,
-    descriptor: PropertyDescriptor,
-  ) {
-    if (PROVIDER_CLASSES.get(target.constructor) == null) {
-      PROVIDER_CLASSES.set(target.constructor, {
+  return function decorator(target: any, key: string) {
+    // Track the class as having a decorated property. Later, this will be used
+    // on instances of this component to register them as context providers.
+    const currentContexts = DECORATED_PROPERTY_CLASSES.get(target.constructor);
+    if (currentContexts == null) {
+      DECORATED_PROPERTY_CLASSES.set(target.constructor, {
         [contextKey]: key,
       });
     } else {
-      const providerClasses = PROVIDER_CLASSES.get(target.constructor);
-      providerClasses[contextKey] = key;
-      PROVIDER_CLASSES.set(target.constructor, providerClasses);
+      DECORATED_PROPERTY_CLASSES.set(target.constructor, {
+        ...currentContexts,
+        [contextKey]: key,
+      });
     }
+  };
+}
 
-    return descriptor;
+export function consume(contextKey: string): PropertyDecorator {
+  return function decorator() {
+    return {
+      get() {
+        if (hasContext(this, contextKey)) {
+          return getContextValue(this, contextKey);
+        }
 
-    // function getter(this: any) {
-    // return currentValue;
-    // }
-
-    // function setter(value: any) {
-    // currentValue = value;
-    // }
-
-    // if (descriptor != null) {
-    // descriptor.get = getter;
-    // descriptor.set = setter;
-    // return descriptor;
-    // }
+        return null;
+      },
+    };
   };
 }

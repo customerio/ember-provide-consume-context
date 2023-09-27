@@ -1,7 +1,7 @@
 import { getOwner } from '@ember/owner';
 
 // TODO: See if we can type the owner
-export function getProvider(owner: any, contextId: string) {
+export function getProvider(owner: any, contextKey: string) {
   const renderer = getOwner(owner)?.lookup('renderer:-dom') as any;
 
   if (renderer == null) {
@@ -16,18 +16,18 @@ export function getProvider(owner: any, contextId: string) {
   }
 
   const contextsObject = provideConsumeContextContainer.contexts.get(owner);
-  return contextsObject?.[contextId];
+  return contextsObject?.[contextKey];
 }
 
-export function hasContext(owner: any, contextId: string) {
-  const provider = getProvider(owner, contextId);
+export function hasContext(owner: any, contextKey: string) {
+  const provider = getProvider(owner, contextKey);
   return provider != null;
 }
 
-export function getContextValue(owner: any, contextId: string) {
-  if (!hasContext(owner, contextId)) {
+export function getContextValue(owner: any, contextKey: string) {
+  if (!hasContext(owner, contextKey)) {
     return undefined;
   }
-  const providerObj = getProvider(owner, contextId);
+  const providerObj = getProvider(owner, contextKey);
   return providerObj.instance[providerObj.key];
 }

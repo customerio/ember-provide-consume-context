@@ -20,6 +20,6 @@ export default class CustomProviderComponent extends Component<CustomProviderCom
 
 declare module '@glint/environment-ember-loose/registry' {
   export default interface Registry {
-    CustomProviderComponent: typeof CustomProviderComponent;
+    CustomProvider: typeof CustomProviderComponent;
   }
 }

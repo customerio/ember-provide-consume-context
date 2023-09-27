@@ -1,4 +1,5 @@
 import Component from '@glimmer/component';
+import { provide } from '@customerio/ember-context';
 
 export interface AComponentSignature {
   Element: HTMLDivElement;
@@ -7,6 +8,11 @@ export interface AComponentSignature {
   };
 }
 export default class AComponent extends Component<AComponentSignature> {
+  @provide('testContext')
+  get value() {
+    return 'asdf';
+  }
+
   get noop() {
     return null;
   }
