@@ -22,17 +22,39 @@
       {{on "click" (fn this.increment "numberTwo")}}
     >Increment numberTwo</button>
   </div>
+
+  <div>
+    <button type="button" {{on "click" this.toggle}}>toggle show</button>
+  </div>
+  <div>
+    <button type="button" {{on "click" this.toggle2}}>toggle show2</button>
+  </div>
+</div>
+
+<div id="inelementtarget">
 </div>
 
 <TestComponent />
 
 <div>
   <this.NumberContext.Provider @value={{this.numberOne}}>
+    {{page-title "TestApp"}}
+    <BComponent />
+
+    {{#if this.show}}
+      {{#in-element this.inelementtarget}}
+        <this.NumberContext.Consumer as |val|>
+          <p>I am rendered elsewhere, {{val}}</p>
+        </this.NumberContext.Consumer>
+      {{/in-element}}
+    {{/if}}
+
     <div
       style="padding: 2px 12px; border: 1px solid purple;"
       {{! template-lint-disable no-inline-styles}}
     >
       <p>numberOne provider, value should be: {{this.numberOne}}</p>
+      <BComponent />
 
       <this.NumberContext.Consumer as |val|>
         <p>Consumer component. Context value: {{val}}</p>
@@ -43,10 +65,21 @@
             {{! template-lint-disable no-inline-styles}}
           >
             <p>numberTwo provider, value should be: {{this.numberTwo}}</p>
+            <BComponent />
 
-            <this.NumberContext.Consumer as |val|>
-              <p>Consumer component, context value: {{val}}</p>
-            </this.NumberContext.Consumer>
+            <this.NumberContext.Provider @value={{9}}>
+              <BComponent />
+              <this.NumberContext.Consumer as |val|>
+                <p>Consumer component, context value: {{val}}</p>
+              </this.NumberContext.Consumer>
+            </this.NumberContext.Provider>
+
+            {{#if this.show2}}
+              <BComponent />
+              <this.NumberContext.Consumer as |val|>
+                <p>Consumer component, context value: {{val}}</p>
+              </this.NumberContext.Consumer>
+            {{/if}}
           </div>
         </this.NumberContext.Provider>
 

@@ -115,7 +115,7 @@
     "type": "addon",
     "main": "addon-main.cjs",
     "app-js": {
-      "./instance-initializers/context-injector.js": "./dist/_app_/instance-initializers/context-injector.js"
+      "./initializers/glimmer-overrides.js": "./dist/_app_/initializers/glimmer-overrides.js"
     }
   }
 }

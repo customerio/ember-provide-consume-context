@@ -1,8 +1,21 @@
-import { CONTEXT_COMPONENT_INSTANCE_PROPERTY } from './symbols';
+import { getOwner } from '@ember/owner';
 
 // TODO: See if we can type the owner
 export function getProvider(owner: any, contextId: string) {
-  const contextsObject = owner[CONTEXT_COMPONENT_INSTANCE_PROPERTY];
+  const renderer = getOwner(owner)?.lookup('renderer:-dom') as any;
+
+  if (renderer == null) {
+    return null;
+  }
+
+  const provideConsumeContextContainer =
+    renderer._runtime?.env?.provideConsumeContextContainer;
+
+  if (provideConsumeContextContainer == null) {
+    return null;
+  }
+
+  const contextsObject = provideConsumeContextContainer.contexts.get(owner);
   return contextsObject?.[contextId];
 }
 
