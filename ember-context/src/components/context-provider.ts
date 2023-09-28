@@ -1,5 +1,5 @@
 import Component from '@glimmer/component';
-import { trackProviderInstanceContext } from '../-private/provide-consume-context-container';
+import { trackProviderInstanceContexts } from '../-private/provide-consume-context-container';
 
 interface ContextProviderSignature<T> {
   Args: {
@@ -17,7 +17,7 @@ export default class ContextProvider<T> extends Component<
   constructor(owner: unknown, args: ContextProviderSignature<T>['Args']) {
     super(owner, args);
 
-    trackProviderInstanceContext(this, args.key, 'value');
+    trackProviderInstanceContexts(this, [[args.key, 'value']]);
   }
 
   get value() {

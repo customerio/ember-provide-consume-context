@@ -10,25 +10,7 @@ export const DECORATED_PROPERTY_CLASSES = new WeakMap<
 // @provide decorated properties
 export const PROVIDER_INSTANCES = new WeakMap<any, Record<string, string>>();
 
-export function trackProviderInstanceContext(
-  instance: any,
-  contextKey: string,
-  propertyKey: string,
-) {
-  const currentContexts = PROVIDER_INSTANCES.get(instance);
-  if (currentContexts == null) {
-    PROVIDER_INSTANCES.set(instance, {
-      [contextKey]: propertyKey,
-    });
-  } else {
-    PROVIDER_INSTANCES.set(instance, {
-      ...currentContexts,
-      [contextKey]: propertyKey,
-    });
-  }
-}
-
-export function trackMultipleProviderInstanceContexts(
+export function trackProviderInstanceContexts(
   instance: any,
   contextDefinitions: [contextKey: string, propertyKey: string][],
 ) {
@@ -102,7 +84,7 @@ export class ProvideConsumeContextContainer {
         );
 
         if (contextKeys != null) {
-          trackMultipleProviderInstanceContexts(
+          trackProviderInstanceContexts(
             actualComponentInstance,
             Object.entries(contextKeys),
           );
