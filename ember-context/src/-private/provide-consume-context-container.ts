@@ -1,4 +1,5 @@
-import { Stack } from './stack';
+import type { ComponentInstance } from '@glimmer/interfaces';
+import { Stack } from '@glimmer/util';
 
 // Map of component class that contain @provide decorated properties, with their
 // respective context keys and property names
@@ -65,7 +66,7 @@ export class ProvideConsumeContextContainer {
     }
   }
 
-  enter(instance: any): void {
+  enter(instance: ComponentInstance): void {
     const componentDefinitionClass = instance.definition.state;
     const actualComponentInstance = (instance?.state as any)?.component;
 
@@ -105,7 +106,7 @@ export class ProvideConsumeContextContainer {
     }
   }
 
-  exit(instance: any): void {
+  exit(instance: ComponentInstance): void {
     const actualComponentInstance = (instance?.state as any)?.component;
 
     if (actualComponentInstance != null) {
