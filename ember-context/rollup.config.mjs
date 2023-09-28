@@ -1,11 +1,15 @@
+import { babel } from '@rollup/plugin-babel';
+import { nodeResolve } from '@rollup/plugin-node-resolve';
 import copy from 'rollup-plugin-copy';
 import { Addon } from '@embroider/addon-dev/rollup';
-import ts from 'rollup-plugin-ts';
 
 const addon = new Addon({
   srcDir: 'src',
   destDir: 'dist',
 });
+
+// Add extensions here, such as ts, gjs, etc that you may import
+const extensions = ['.js', '.ts'];
 
 export default {
   // This provides defaults that work well alongside `publicEntrypoints` below.
@@ -35,15 +39,14 @@ export default {
     // This babel config should *not* apply presets or compile away ES modules.
     // It exists only to provide development niceties for you, like automatic
     // template colocation.
-    //
-    // By default, this will load the actual babel config from the file
-    // babel.config.json.
-    ts({
-      transpiler: 'babel',
-      transpileOnly: true,
-      babelConfig: './babel.config.json',
-      browserslist: ['last 2 firefox versions', 'last 2 chrome versions'],
+    // See `babel.config.json` for the actual Babel configuration!
+    babel({
+      extensions,
+      babelHelpers: 'bundled',
     }),
+
+    // Allows rollup to resolve imports of files with the specified extensions
+    nodeResolve({ extensions }),
 
     // Ensure that standalone .hbs files are properly integrated as Javascript.
     addon.hbs(),
