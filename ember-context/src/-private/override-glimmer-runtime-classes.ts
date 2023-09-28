@@ -1,19 +1,24 @@
-import { Op } from './@glimmer/opcodes';
 import {
   ProvideConsumeContextDidRenderOpcode,
   ProvideConsumeContextUpdateOpcode,
 } from './opcodes';
 import { ProvideConsumeContextContainer } from './provide-consume-context-container';
+import type { ComponentInstance } from '@glimmer/interfaces';
+import type {
+  LowLevelVM as GlimmerLowLevelVM,
+  EnvironmentImpl as GlimmerEnvironmentImpl,
+} from '@glimmer/runtime';
+import { Op } from './@glimmer/opcodes';
 
 function overrideVM(runtime: any) {
-  const LowLevelVM = runtime.LowLevelVM;
+  const LowLevelVM = runtime.LowLevelVM as typeof GlimmerLowLevelVM;
   const originalNext = LowLevelVM.prototype.next;
 
   // We can't reach into the opcode definitions themselves, but we can hook into
   // when they're evaluated ("next"), and execute additional code when the
   // opcodes we're interested are called.
   // https://github.com/glimmerjs/glimmer-vm/blob/68d371bdccb41bc239b8f70d832e956ce6c349d8/packages/%40glimmer/runtime/lib/vm/append.ts#L603C1-L603C1
-  LowLevelVM.prototype.next = function (...args: any) {
+  LowLevelVM.prototype.next = function () {
     // The actual evaluation happens in the "low level VM":
     // https://github.com/glimmerjs/glimmer-vm/blob/68d371bdccb41bc239b8f70d832e956ce6c349d8/packages/%40glimmer/runtime/lib/vm/low-level.ts#L112
     // but that isn't exposed to us.
@@ -21,13 +26,11 @@ function overrideVM(runtime: any) {
     // "program" instance, which is all we need to get the current opcode.
     const opcode = this.program.opcode(this.pc);
 
-    // GetComponentSelf opcode
-    // https://github.com/glimmerjs/glimmer-vm/blob/68d371bdccb41bc239b8f70d832e956ce6c349d8/packages/%40glimmer/vm/lib/opcodes.ts#L196
     if (opcode.type === Op.GetComponentSelf) {
       // Get the component instance from the VM
       // (that's the VM's component instance, not the Glimmer Component one)
       // https://github.com/glimmerjs/glimmer-vm/blob/68d371bdccb41bc239b8f70d832e956ce6c349d8/packages/%40glimmer/runtime/lib/compiled/opcodes/component.ts#L579
-      const instance = this.fetchValue(opcode.op1);
+      const instance = this.fetchValue<ComponentInstance>(opcode.op1);
 
       // Add the component to the stack
       this.env.provideConsumeContextContainer?.enter(instance);
@@ -35,13 +38,11 @@ function overrideVM(runtime: any) {
       this.updateWith(new ProvideConsumeContextUpdateOpcode(instance));
     }
 
-    // DidRenderLayout opcode
-    // https://github.com/glimmerjs/glimmer-vm/blob/68d371bdccb41bc239b8f70d832e956ce6c349d8/packages/%40glimmer/vm/lib/opcodes.ts#L206
     if (opcode.type === Op.DidRenderLayout) {
       // Get the component instance from the VM
       // (that's the VM's component instance, not the Glimmer Component one)
       // https://github.com/glimmerjs/glimmer-vm/blob/68d371bdccb41bc239b8f70d832e956ce6c349d8/packages/%40glimmer/runtime/lib/compiled/opcodes/component.ts#L832
-      const instance = this.fetchValue(opcode.op1);
+      const instance = this.fetchValue<ComponentInstance>(opcode.op1);
 
       // After the component has rendered, remove it from the stack
       this.env.provideConsumeContextContainer?.exit(instance);
@@ -49,15 +50,16 @@ function overrideVM(runtime: any) {
       this.updateWith(new ProvideConsumeContextDidRenderOpcode(instance));
     }
 
-    return originalNext.apply(this, ...args);
+    return originalNext.apply(this);
   };
 }
 
 function overrideEnvironment(runtime: any) {
-  const EnvironmentImpl = runtime.EnvironmentImpl;
+  const EnvironmentImpl =
+    runtime.EnvironmentImpl as typeof GlimmerEnvironmentImpl;
 
   const originalBegin = EnvironmentImpl.prototype.begin;
-  EnvironmentImpl.prototype.begin = function (...args: any[]) {
+  EnvironmentImpl.prototype.begin = function () {
     if (this.provideConsumeContextContainer == null) {
       this.provideConsumeContextContainer =
         new ProvideConsumeContextContainer();
@@ -65,13 +67,13 @@ function overrideEnvironment(runtime: any) {
 
     // When a render transaction is started, let our container know to reset
     // the stack
-    this.provideConsumeContextContainer?.begin();
+    (this as any).provideConsumeContextContainer?.begin();
 
-    return originalBegin.apply(this, ...args);
+    return originalBegin.apply(this);
   };
 
   const originalCommit = EnvironmentImpl.prototype.commit;
-  EnvironmentImpl.prototype.commit = function (...args: any[]) {
+  EnvironmentImpl.prototype.commit = function () {
     if (this.provideConsumeContextContainer == null) {
       this.provideConsumeContextContainer =
         new ProvideConsumeContextContainer();
@@ -81,7 +83,7 @@ function overrideEnvironment(runtime: any) {
     // the stack
     this.provideConsumeContextContainer?.commit();
 
-    return originalCommit.apply(this, ...args);
+    return originalCommit.apply(this);
   };
 }
 
