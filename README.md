@@ -103,10 +103,134 @@ context, and it yields the value of the context:
 </ContextConsumer>
 ```
 
-### TypeScript
-Currently, context names are just strings, and this library doesn't yet provide
-a way to automatically assign or infer types based on context names.
+__Important note:__ Currently, the `@provide` and `@consume` decorators only
+work in components. Providing or consuming context state from Routes,
+Controllers, Helpers or Services does not work.
 
+
+### TypeScript
+This addon ships with TypeScript and [Glint](https://typed-ember.gitbook.io/glint/) support.
+
+To take advantage of Glint types (for the `ContextProvider` and
+`ContextConsumer` components), you'll need to import the template registry
+interface, as described in the [Glint docs](https://typed-ember.gitbook.io/glint/environments/ember/using-addons):
+
+```ts
+// types/global.d.ts
+import '@glint/environment-ember-loose';
+
+import type EmberContextTemplateRegistry from '@customerio/ember-context/template-registry';
+
+declare module '@glint/environment-ember-loose/registry' {
+  export default interface Registry extends EmberContextTemplateRegistry, /* other addon registries */ {
+    // local entries
+  }
+}
+```
+
+
+Additionally, this addon exposes a type registry to associate string context
+keys with the type of value.
+
+First, you'll need to add
+
+```ts
+import '@customerio/ember-context/context-registry';
+```
+
+somewhere in your source files or type declaration files. This will force
+TypeScript to merge type declarations for the registry.
+
+Next, you'll need to declare the value type for your context keys, like this:
+
+```ts
+declare module '@customerio/ember-context/context-registry' {
+  export default interface ContextRegistry {
+    'my-context-name': string;
+    'AuthContext': AuthInterface;
+    // ...
+  }
+}
+```
+
+You can keep a global `types/context.d.ts` file and declare all your contexts
+there, or you can declare the context types in the same files where you provide
+them, like this:
+
+```ts
+import Component from '@glimmer/component';
+import { provide } from '@customerio/ember-context';
+
+export default class MyComponent extends Component {
+  @provide('my-context-name')
+  get someState() {
+    return 'some value';
+  }
+}
+
+declare module '@customerio/ember-context/context-registry' {
+  export default interface ContextRegistry {
+    'my-context-name': string;
+  }
+}
+```
+
+With `ContextRegistry` types defined and Glint enabled, the `ContextProvider`
+and `ContextConsumer` components will correctly infer the value types based on
+the string context key arguments.
+
+When consuming a context with the `@consume` decorator, the type can be
+retrieved using the registry like this:
+
+```ts
+import Component from '@glimmer/component';
+import { consume } from '@customerio/ember-context';
+import type ContextRegistry from '@customerio/ember-context/context-registry';
+
+export default class MyChildComponent extends Component {
+  @consume('my-context-name') myContextValue!: ContextRegistry['my-context-name'];
+}
+```
+
+`myContextValue` will then correctly infer the type of value - provided you have
+defined the type elsewhere, of course. The explicit type assignment above is
+necessary, because returning a type through decorators automatically isn't
+supported in TypeScript.
+
+Finally, to avoid typos when referencing context keys, and generally making it
+easier to maintain context definitions, we recommend declaring and exporting
+your context keys as constants:
+
+```ts
+import Component from '@glimmer/component';
+import { provide } from '@customerio/ember-context';
+
+export const MyContext = 'my-context-name' as const;
+
+export default class MyComponent extends Component {
+  @provide(MyContext)
+  get someState() {
+    return 'some value';
+  }
+}
+
+declare module '@customerio/ember-context/context-registry' {
+  export default interface ContextRegistry {
+    [MyContext]: string;
+  }
+}
+```
+
+```ts
+import Component from '@glimmer/component';
+import { consume } from '@customerio/ember-context';
+import { MyContext } from 'my-app/components/my-component';
+import type ContextRegistry from '@customerio/ember-context/context-registry';
+
+export default class MyChildComponent extends Component {
+  @consume(MyContext) myContextValue!: ContextRegistry[typeof MyContext];
+}
+```
 
 ## Inspiration
 The idea was to create an API similar to the Context API in React
