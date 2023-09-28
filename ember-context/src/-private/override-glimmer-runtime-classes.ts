@@ -1,3 +1,4 @@
+import { Op } from './@glimmer/opcodes';
 import {
   ProvideConsumeContextDidRenderOpcode,
   ProvideConsumeContextUpdateOpcode,
@@ -22,7 +23,7 @@ function overrideVM(runtime: any) {
 
     // GetComponentSelf opcode
     // https://github.com/glimmerjs/glimmer-vm/blob/68d371bdccb41bc239b8f70d832e956ce6c349d8/packages/%40glimmer/vm/lib/opcodes.ts#L196
-    if (opcode.type === 90) {
+    if (opcode.type === Op.GetComponentSelf) {
       // Get the component instance from the VM
       // (that's the VM's component instance, not the Glimmer Component one)
       // https://github.com/glimmerjs/glimmer-vm/blob/68d371bdccb41bc239b8f70d832e956ce6c349d8/packages/%40glimmer/runtime/lib/compiled/opcodes/component.ts#L579
@@ -36,7 +37,7 @@ function overrideVM(runtime: any) {
 
     // DidRenderLayout opcode
     // https://github.com/glimmerjs/glimmer-vm/blob/68d371bdccb41bc239b8f70d832e956ce6c349d8/packages/%40glimmer/vm/lib/opcodes.ts#L206
-    if (opcode.type === 100) {
+    if (opcode.type === Op.DidRenderLayout) {
       // Get the component instance from the VM
       // (that's the VM's component instance, not the Glimmer Component one)
       // https://github.com/glimmerjs/glimmer-vm/blob/68d371bdccb41bc239b8f70d832e956ce6c349d8/packages/%40glimmer/runtime/lib/compiled/opcodes/component.ts#L832
