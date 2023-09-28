@@ -1,5 +1,40 @@
-import { ContextProvider } from './create-context';
 import { Stack } from './stack';
+
+// Map of component class that contain @provide decorated properties, with their
+// respective context keys and property names
+export const DECORATED_PROPERTY_CLASSES = new WeakMap<
+  any,
+  Record<string, string>
+>();
+// Map of instances of the ContextProvider component, or components that contain
+// @provide decorated properties
+export const PROVIDER_INSTANCES = new WeakMap<any, Record<string, string>>();
+
+export function trackProviderInstanceContexts(
+  instance: any,
+  contextDefinitions: [contextKey: string, propertyKey: string][],
+) {
+  const currentContexts = PROVIDER_INSTANCES.get(instance);
+  if (currentContexts == null) {
+    PROVIDER_INSTANCES.set(instance, Object.fromEntries(contextDefinitions));
+  } else {
+    PROVIDER_INSTANCES.set(instance, {
+      ...currentContexts,
+      ...Object.fromEntries(contextDefinitions),
+    });
+  }
+}
+
+interface Contexts {
+  [contextKey: string]: ContextEntry;
+}
+
+interface ContextEntry {
+  // instance is an instance of a Glimmer component
+  instance: any;
+  // the property to read from the provider instance
+  key: string;
+}
 
 export class ProvideConsumeContextContainer {
   private stack = new Stack();
@@ -12,7 +47,7 @@ export class ProvideConsumeContextContainer {
   // not the VM ones).
   // The values are objects that map a string ID (provider ID) to the provider
   // component instance.
-  contexts = new WeakMap<any, Record<string, any>>();
+  contexts = new WeakMap<any, Contexts>();
 
   begin(): void {
     this.reset();
@@ -31,12 +66,36 @@ export class ProvideConsumeContextContainer {
   }
 
   enter(instance: any): void {
+    const componentDefinitionClass = instance.definition.state;
     const actualComponentInstance = (instance?.state as any)?.component;
 
     if (actualComponentInstance != null) {
-      // TODO: Can the Provider component be built into Glimmer? Should we do this
-      // with some sort of manager?
-      if (actualComponentInstance instanceof ContextProvider) {
+      const isDecorated = DECORATED_PROPERTY_CLASSES.has(
+        componentDefinitionClass,
+      );
+
+      // If this is an instance of a component that contains @provide decorated
+      // properties, add this instance - and the context keys - to the
+      // PROVIDE_INSTANCES map, so that the context values can be set in the
+      // next step
+      if (isDecorated) {
+        const contextKeys = DECORATED_PROPERTY_CLASSES.get(
+          componentDefinitionClass,
+        );
+
+        if (contextKeys != null) {
+          trackProviderInstanceContexts(
+            actualComponentInstance,
+            Object.entries(contextKeys),
+          );
+        }
+      }
+
+      const isProviderInstance = PROVIDER_INSTANCES.has(
+        actualComponentInstance,
+      );
+
+      if (isProviderInstance) {
         this.registerProvider(actualComponentInstance);
       } else {
         this.registerComponent(actualComponentInstance);
@@ -57,7 +116,7 @@ export class ProvideConsumeContextContainer {
   private registerProvider(provider: any) {
     const { current } = this;
 
-    let providerContexts: Record<any, any> = {};
+    let providerContexts: Contexts = {};
     if (this.contexts.has(current)) {
       // If a provider is nested within another provider, we merge their
       // contexts
@@ -66,11 +125,18 @@ export class ProvideConsumeContextContainer {
         providerContexts = { ...context };
       }
     }
-    // Currently testing this by requiring Provider components to have a string
-    // "id", which is then used to retrieve the context value.
-    // TODO: Similar to the TODO in "enter" below, how do we make this less
-    // coupled to a Provider implementation that doesn't exist in here?
-    providerContexts[provider.id] = provider;
+
+    const registeredContexts = PROVIDER_INSTANCES.get(provider);
+    if (registeredContexts != null) {
+      Object.entries(registeredContexts).forEach(([contextKey, key]) => {
+        if (key in provider) {
+          providerContexts[contextKey] = {
+            instance: provider,
+            key,
+          };
+        }
+      });
+    }
 
     this.contexts.set(provider, providerContexts);
   }

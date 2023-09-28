@@ -1,25 +1,25 @@
 import Component from '@glimmer/component';
 import { provide } from '@customerio/ember-context';
 
-export interface AComponentSignature {
+export interface CustomProviderComponentSignature {
+  Args: {
+    value: unknown;
+  };
   Element: HTMLDivElement;
   Blocks: {
     default: [];
   };
 }
-export default class AComponent extends Component<AComponentSignature> {
+
+export default class CustomProviderComponent extends Component<CustomProviderComponentSignature> {
   @provide('testContext')
   get value() {
-    return 'asdf';
-  }
-
-  get noop() {
-    return null;
+    return this.args.value;
   }
 }
 
 declare module '@glint/environment-ember-loose/registry' {
   export default interface Registry {
-    AComponent: typeof AComponent;
+    CustomProvider: typeof CustomProviderComponent;
   }
 }

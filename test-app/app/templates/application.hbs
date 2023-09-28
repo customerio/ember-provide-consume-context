@@ -34,20 +34,25 @@
 <div id="inelementtarget">
 </div>
 
+<AComponent />
 <TestComponent />
 
-<div>
-  <this.NumberContext.Provider @value={{this.numberOne}}>
-    {{page-title "TestApp"}}
-    <BComponent />
+<ContextProvider @key="testContext" @value={{this.numberOne}}>
+  <ContextConsumer @key="testContext" as |val|>
+    <p>Consumer component, context value: {{val}}</p>
+  </ContextConsumer>
+</ContextProvider>
 
-    {{#if this.show}}
-      {{#in-element this.inelementtarget}}
-        <this.NumberContext.Consumer as |val|>
-          <p>I am rendered elsewhere, {{val}}</p>
-        </this.NumberContext.Consumer>
-      {{/in-element}}
-    {{/if}}
+<CustomProvider @value={{this.numberTwo}}>
+  <p>CustomProvider</p>
+  <ContextConsumer @key="testContext" as |val|>
+    <p>Consumer component, context value: {{val}}</p>
+  </ContextConsumer>
+</CustomProvider>
+
+<div>
+  <ContextProvider @key="NumberContext" @value={{this.numberOne}}>
+    <BComponent />
 
     <div
       style="padding: 2px 12px; border: 1px solid purple;"
@@ -56,10 +61,10 @@
       <p>numberOne provider, value should be: {{this.numberOne}}</p>
       <BComponent />
 
-      <this.NumberContext.Consumer as |val|>
+      <ContextConsumer @key="NumberContext" as |val|>
         <p>Consumer component. Context value: {{val}}</p>
 
-        <this.NumberContext.Provider @value={{this.numberTwo}}>
+        <ContextProvider @key="NumberContext" @value={{this.numberTwo}}>
           <div
             style="padding: 2px 12px; border: 1px solid purple;"
             {{! template-lint-disable no-inline-styles}}
@@ -67,25 +72,28 @@
             <p>numberTwo provider, value should be: {{this.numberTwo}}</p>
             <BComponent />
 
-            <this.NumberContext.Provider @value={{9}}>
+            <ContextProvider @key="NumberContext" @value={{9}}>
               <BComponent />
-              <this.NumberContext.Consumer as |val|>
+              <ContextConsumer @key="NumberContext" as |val|>
                 <p>Consumer component, context value: {{val}}</p>
-              </this.NumberContext.Consumer>
-            </this.NumberContext.Provider>
+              </ContextConsumer>
+            </ContextProvider>
 
             {{#if this.show2}}
               <BComponent />
-              <this.NumberContext.Consumer as |val|>
+              <ContextConsumer @key="NumberContext" as |val|>
                 <p>Consumer component, context value: {{val}}</p>
-              </this.NumberContext.Consumer>
+              </ContextConsumer>
             {{/if}}
           </div>
-        </this.NumberContext.Provider>
+        </ContextProvider>
+        <ContextConsumer @key="NumberContext" as |val|>
+          <p>Consumer component, context value: {{val}}</p>
+        </ContextConsumer>
 
-      </this.NumberContext.Consumer>
+      </ContextConsumer>
     </div>
-  </this.NumberContext.Provider>
+  </ContextProvider>
 </div>
 
 {{outlet}}

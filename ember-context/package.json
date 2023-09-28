@@ -115,6 +115,8 @@
     "type": "addon",
     "main": "addon-main.cjs",
     "app-js": {
+      "./components/context-consumer.js": "./dist/_app_/components/context-consumer.js",
+      "./components/context-provider.js": "./dist/_app_/components/context-provider.js",
       "./initializers/glimmer-overrides.js": "./dist/_app_/initializers/glimmer-overrides.js"
     }
   }
