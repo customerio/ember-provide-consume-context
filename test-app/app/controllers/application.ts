@@ -3,6 +3,7 @@ import { tracked } from '@glimmer/tracking';
 import { action } from '@ember/object';
 
 export const NumberContext = 'NumberContext' as const;
+
 export default class ApplicationController extends Controller {
   @tracked numberOne = 1;
   @tracked numberTwo = 1;
@@ -26,5 +27,11 @@ export default class ApplicationController extends Controller {
 
   get inelementtarget() {
     return document.querySelector('#inelementtarget') as HTMLElement;
+  }
+}
+
+declare module '@customerio/ember-context/context-registry' {
+  export default interface ContextRegistry {
+    [NumberContext]: number;
   }
 }

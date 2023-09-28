@@ -5,6 +5,6 @@ import '@customerio/ember-context/context-registry';
 // they're provided.
 declare module '@customerio/ember-context/context-registry' {
   export default interface ContextRegistry {
-    NumberContext: number;
+    'some-number-context': number;
   }
 }
