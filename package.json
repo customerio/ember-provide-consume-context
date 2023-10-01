@@ -4,8 +4,8 @@
     "type": "git",
     "url": "git+https://github.com/customerio/ember-context.git"
   },
-  "license": "CIO-Proprietary",
-  "author": "",
+  "license": "MIT",
+  "author": "Customer.io (https://customer.io)",
   "scripts": {
     "build": "npm run build --workspace ember-context",
     "lint": "npm run lint --workspaces --if-present",

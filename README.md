@@ -124,3 +124,8 @@ The idea was to create an API similar to the Context API in React
 ## Contributing
 
 See the [Contributing](CONTRIBUTING.md) guide for details.
+
+
+## License
+
+This project is licensed under the [MIT License](LICENSE.md).
