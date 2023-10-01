@@ -4,8 +4,8 @@
     "type": "git",
     "url": "git+https://github.com/customerio/ember-context.git"
   },
-  "license": "CIO-Proprietary",
-  "author": "",
+  "license": "MIT",
+  "author": "Customer.io (https://customer.io)",
   "scripts": {
     "build": "npm run build --workspace ember-context",
     "lint": "npm run lint --workspaces --if-present",
@@ -15,7 +15,9 @@
     "start:addon": "npm start --workspace ember-context -- --no-watch.clearScreen",
     "start:test-app": "npm start --workspace test-app",
     "test": "npm run test --workspaces --if-present",
-    "test:ember": "npm run test:ember --workspaces --if-present"
+    "test:ember": "npm run test:ember --workspaces --if-present",
+    "version": "changeset version && npm install --package-lock-only",
+    "release": "npm run build && changeset publish"
   },
   "devDependencies": {
     "concurrently": "^8.2.0",
