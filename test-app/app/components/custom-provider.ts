@@ -1,9 +1,10 @@
 import Component from '@glimmer/component';
 import { provide } from '@customerio/ember-context';
+import type ContextRegistry from '@customerio/ember-context/context-registry';
 
 export interface CustomProviderComponentSignature {
   Args: {
-    value: unknown;
+    value: ContextRegistry['testContext'];
   };
   Element: HTMLDivElement;
   Blocks: {
@@ -21,5 +22,11 @@ export default class CustomProviderComponent extends Component<CustomProviderCom
 declare module '@glint/environment-ember-loose/registry' {
   export default interface Registry {
     CustomProvider: typeof CustomProviderComponent;
+  }
+}
+
+declare module '@customerio/ember-context/context-registry' {
+  export default interface ContextRegistry {
+    testContext: string | number;
   }
 }

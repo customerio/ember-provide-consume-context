@@ -61,7 +61,7 @@
       <p>numberOne provider, value should be: {{this.numberOne}}</p>
       <BComponent />
 
-      <ContextConsumer @key="NumberContext" as |val|>
+      <ContextConsumer @key={{this.NumberContext}} as |val|>
         <p>Consumer component. Context value: {{val}}</p>
 
         <ContextProvider @key="NumberContext" @value={{this.numberTwo}}>
