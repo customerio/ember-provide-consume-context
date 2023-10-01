@@ -2,10 +2,10 @@ import Component from '@glimmer/component';
 import { trackProviderInstanceContexts } from '../-private/provide-consume-context-container';
 import type ContextRegistry from '../context-registry';
 
-interface ContextProviderSignature<T extends keyof ContextRegistry> {
+interface ContextProviderSignature<K extends keyof ContextRegistry> {
   Args: {
-    key: T;
-    value: ContextRegistry[T];
+    key: K;
+    value: ContextRegistry[K];
   };
   Blocks: {
     default: [];
@@ -13,9 +13,9 @@ interface ContextProviderSignature<T extends keyof ContextRegistry> {
 }
 
 export default class ContextProvider<
-  T extends keyof ContextRegistry,
-> extends Component<ContextProviderSignature<T>> {
-  constructor(owner: unknown, args: ContextProviderSignature<T>['Args']) {
+  K extends keyof ContextRegistry,
+> extends Component<ContextProviderSignature<K>> {
+  constructor(owner: unknown, args: ContextProviderSignature<K>['Args']) {
     super(owner, args);
 
     trackProviderInstanceContexts(this, [[args.key, 'value']]);
