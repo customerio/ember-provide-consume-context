@@ -29,3 +29,5 @@ jobs:
         with:
           version: npm run version
           publish: npm run release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
