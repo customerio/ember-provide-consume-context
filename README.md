@@ -107,6 +107,9 @@ __Important note:__ Currently, the `@provide` and `@consume` decorators only
 work in components. Providing or consuming context state from Routes,
 Controllers, Helpers or Services does not work.
 
+In Route templates, the `ContextProvider` and `ContextConsumer` components can
+be used for working with contexts.
+
 
 ### TypeScript
 This addon ships with TypeScript and [Glint](https://typed-ember.gitbook.io/glint/) support.
@@ -196,6 +199,10 @@ export default class MyChildComponent extends Component {
 defined the type elsewhere, of course. The explicit type assignment above is
 necessary, because returning a type through decorators automatically isn't
 supported in TypeScript.
+
+At the moment, context names must be strings. We have tried symbol keys, but
+Ember Inspector started throwing errors when parsing component trees where
+symbols were used as arguments, so we dropped that idea (for now, at least).
 
 Finally, to avoid typos when referencing context keys, and generally making it
 easier to maintain context definitions, we recommend declaring and exporting
