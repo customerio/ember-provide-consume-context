@@ -1,5 +1,5 @@
 {
-  "name": "@customerio/ember-context",
+  "name": "ember-provide-consume-context",
   "version": "0.0.1",
   "description": "A context API implementation for Ember.js",
   "keywords": [
@@ -7,7 +7,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/customerio/ember-context.git"
+    "url": "git+https://github.com/customerio/ember-provide-consume-context.git"
   },
   "license": "MIT",
   "author": "Customer.io (https://customer.io)",

@@ -1,6 +1,6 @@
 import Component from '@glimmer/component';
-import { consume } from '@customerio/ember-context';
-import type ContextRegistry from '@customerio/ember-context/context-registry';
+import { consume } from 'ember-provide-consume-context';
+import type ContextRegistry from 'ember-provide-consume-context/context-registry';
 import { NumberContext } from 'test-app/controllers/application';
 
 export interface TestComponentSignature {

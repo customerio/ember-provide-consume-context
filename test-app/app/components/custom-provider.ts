@@ -1,6 +1,6 @@
 import Component from '@glimmer/component';
-import { provide } from '@customerio/ember-context';
-import type ContextRegistry from '@customerio/ember-context/context-registry';
+import { provide } from 'ember-provide-consume-context';
+import type ContextRegistry from 'ember-provide-consume-context/context-registry';
 
 export interface CustomProviderComponentSignature {
   Args: {
@@ -25,7 +25,7 @@ declare module '@glint/environment-ember-loose/registry' {
   }
 }
 
-declare module '@customerio/ember-context/context-registry' {
+declare module 'ember-provide-consume-context/context-registry' {
   export default interface ContextRegistry {
     testContext: string | number;
   }
