@@ -1,4 +1,4 @@
-# @customerio/ember-context
+# ember-provide-consume-context
 
 ## 0.1.0
 
