@@ -30,7 +30,7 @@ export default class ApplicationController extends Controller {
   }
 }
 
-declare module '@customerio/ember-context/context-registry' {
+declare module 'ember-provide-consume-context/context-registry' {
   export default interface ContextRegistry {
     [NumberContext]: number;
   }

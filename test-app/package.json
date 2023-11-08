@@ -2,10 +2,10 @@
   "name": "test-app",
   "version": "0.0.0",
   "private": true,
-  "description": "Test app for ember-context addon",
+  "description": "Test app for ember-provide-consume-context addon",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/customerio/ember-context.git"
+    "url": "git+https://github.com/customerio/ember-provide-consume-context.git"
   },
   "license": "MIT",
   "author": "Customer.io (https://customer.io)",
@@ -29,7 +29,7 @@
     "test:ember": "ember test"
   },
   "devDependencies": {
-    "@customerio/ember-context": "^0.0.1",
+    "ember-provide-consume-context": "^0.0.1",
     "@ember/optional-features": "^2.0.0",
     "@ember/string": "^3.0.1",
     "@ember/test-helpers": "^2.9.3",

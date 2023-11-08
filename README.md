@@ -1,4 +1,4 @@
-# @customerio/ember-context
+# ember-provide-consume-context
 
 This addon provides a way to share data through to nested components without
 having to pass arguments at each level (i.e. no prop drilling).
@@ -11,7 +11,7 @@ having to pass arguments at each level (i.e. no prop drilling).
 ## Installation
 
 ```
-ember install @customerio/ember-context
+ember install ember-provide-consume-context
 ```
 
 ## Usage
@@ -28,7 +28,7 @@ descendants to look up the value.
 
 ```ts
 import Component from '@glimmer/component';
-import { provide } from '@customerio/ember-context';
+import { provide } from 'ember-provide-consume-context';
 
 export default class MyComponent extends Component {
   @provide('my-context-name')
@@ -43,7 +43,7 @@ It is possible to expose tracked properties in context, by adding a
 
 ```ts
 import Component from '@glimmer/component';
-import { provide } from '@customerio/ember-context';
+import { provide } from 'ember-provide-consume-context';
 
 export default class MyComponent extends Component {
   @tracked myTrackedValue = 'some value';
@@ -82,7 +82,7 @@ similar to working with an Ember service:
 
 ```ts
 import Component from '@glimmer/component';
-import { consume } from '@customerio/ember-context';
+import { consume } from 'ember-provide-consume-context';
 
 export default class MyChildComponent extends Component {
   @consume('my-context-name') myContextValue!: string;
@@ -122,7 +122,7 @@ interface, as described in the [Glint docs](https://typed-ember.gitbook.io/glint
 // types/global.d.ts
 import '@glint/environment-ember-loose';
 
-import type EmberContextTemplateRegistry from '@customerio/ember-context/template-registry';
+import type EmberContextTemplateRegistry from 'ember-provide-consume-context/template-registry';
 
 declare module '@glint/environment-ember-loose/registry' {
   export default interface Registry extends EmberContextTemplateRegistry, /* other addon registries */ {
@@ -138,7 +138,7 @@ keys with the type of value.
 First, you'll need to add
 
 ```ts
-import '@customerio/ember-context/context-registry';
+import 'ember-provide-consume-context/context-registry';
 ```
 
 somewhere in your source files or type declaration files. This will force
@@ -147,7 +147,7 @@ TypeScript to merge type declarations for the registry.
 Next, you'll need to declare the value type for your context keys, like this:
 
 ```ts
-declare module '@customerio/ember-context/context-registry' {
+declare module 'ember-provide-consume-context/context-registry' {
   export default interface ContextRegistry {
     'my-context-name': string;
     'AuthContext': AuthInterface;
@@ -162,7 +162,7 @@ them, like this:
 
 ```ts
 import Component from '@glimmer/component';
-import { provide } from '@customerio/ember-context';
+import { provide } from 'ember-provide-consume-context';
 
 export default class MyComponent extends Component {
   @provide('my-context-name')
@@ -171,7 +171,7 @@ export default class MyComponent extends Component {
   }
 }
 
-declare module '@customerio/ember-context/context-registry' {
+declare module 'ember-provide-consume-context/context-registry' {
   export default interface ContextRegistry {
     'my-context-name': string;
   }
@@ -187,8 +187,8 @@ retrieved using the registry like this:
 
 ```ts
 import Component from '@glimmer/component';
-import { consume } from '@customerio/ember-context';
-import type ContextRegistry from '@customerio/ember-context/context-registry';
+import { consume } from 'ember-provide-consume-context';
+import type ContextRegistry from 'ember-provide-consume-context/context-registry';
 
 export default class MyChildComponent extends Component {
   @consume('my-context-name') myContextValue!: ContextRegistry['my-context-name'];
@@ -210,7 +210,7 @@ your context keys as constants:
 
 ```ts
 import Component from '@glimmer/component';
-import { provide } from '@customerio/ember-context';
+import { provide } from 'ember-provide-consume-context';
 
 export const MyContext = 'my-context-name' as const;
 
@@ -221,7 +221,7 @@ export default class MyComponent extends Component {
   }
 }
 
-declare module '@customerio/ember-context/context-registry' {
+declare module 'ember-provide-consume-context/context-registry' {
   export default interface ContextRegistry {
     [MyContext]: string;
   }
@@ -230,9 +230,9 @@ declare module '@customerio/ember-context/context-registry' {
 
 ```ts
 import Component from '@glimmer/component';
-import { consume } from '@customerio/ember-context';
+import { consume } from 'ember-provide-consume-context';
 import { MyContext } from 'my-app/components/my-component';
-import type ContextRegistry from '@customerio/ember-context/context-registry';
+import type ContextRegistry from 'ember-provide-consume-context/context-registry';
 
 export default class MyChildComponent extends Component {
   @consume(MyContext) myContextValue!: ContextRegistry[typeof MyContext];
@@ -250,7 +250,7 @@ The idea was to create an API similar to the Context API in React
 - [`ember-context`](https://github.com/alexlafroscia/ember-context): Another
   Ember addon that also implements a similar Context API. However, that addon's
   implementation relies has providers racing on a provider key, while our addon
-  uses the actual Ember component tree
+  uses the Ember component tree
 
 ## Contributing
 

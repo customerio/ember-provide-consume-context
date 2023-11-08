@@ -3,7 +3,7 @@
 ## Installation
 
 - `git clone <repository-url>`
-- `cd ember-context`
+- `cd ember-provide-consume-context`
 - `npm install`
 
 ## Linting
@@ -13,7 +13,7 @@
 
 ## Building the addon
 
-- `cd ember-context`
+- `cd ember-provide-consume-context`
 - `npm build`
 
 ## Running tests

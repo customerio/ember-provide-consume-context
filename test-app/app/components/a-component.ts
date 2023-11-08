@@ -1,5 +1,5 @@
 import Component from '@glimmer/component';
-import { provide } from '@customerio/ember-context';
+import { provide } from 'ember-provide-consume-context';
 
 export interface AComponentSignature {
   Element: HTMLDivElement;

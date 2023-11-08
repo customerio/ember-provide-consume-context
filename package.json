@@ -2,17 +2,17 @@
   "private": true,
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/customerio/ember-context.git"
+    "url": "git+https://github.com/customerio/ember-provide-consume-context.git"
   },
   "license": "MIT",
   "author": "Customer.io (https://customer.io)",
   "scripts": {
-    "build": "npm run build --workspace ember-context",
+    "build": "npm run build --workspace ember-provide-consume-context",
     "lint": "npm run lint --workspaces --if-present",
     "lint:fix": "npm run lint:fix --workspaces --if-present",
     "prepare": "npm run build",
     "start": "concurrently 'npm:start:*' --restart-after 5000 --prefix-colors cyan,white,yellow",
-    "start:addon": "npm start --workspace ember-context -- --no-watch.clearScreen",
+    "start:addon": "npm start --workspace ember-provide-consume-context -- --no-watch.clearScreen",
     "start:test-app": "npm start --workspace test-app",
     "test": "npm run test --workspaces --if-present",
     "test:ember": "npm run test:ember --workspaces --if-present",
@@ -25,7 +25,7 @@
     "prettier-plugin-ember-template-tag": "^1.1.0"
   },
   "workspaces": [
-    "ember-context",
+    "ember-provide-consume-context",
     "test-app"
   ],
   "dependencies": {
