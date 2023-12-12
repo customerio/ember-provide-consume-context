@@ -1,6 +1,6 @@
 import Ember from 'ember';
 import { overrideGlimmerRuntime } from '../-private/override-glimmer-runtime-classes';
-import { importSync } from '@embroider/macros';
+import { getGlobalConfig, importSync } from '@embroider/macros';
 
 export function initialize() {
   if ((Ember as any).__loader?.require == null) {
@@ -15,7 +15,7 @@ export function initialize() {
   try {
     glimmerRuntime = (Ember as any).__loader.require('@glimmer/runtime');
   } catch {
-    glimmerRuntime = importSync('@glimmer/runtime.js');
+    glimmerRuntime = importSync('@glimmer/runtime');
   }
   if (glimmerRuntime == null) {
     return;
