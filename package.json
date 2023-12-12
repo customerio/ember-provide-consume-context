@@ -29,7 +29,8 @@
     "test-app"
   ],
   "dependencies": {
-    "@changesets/cli": "^2.26.2"
+    "@changesets/cli": "^2.26.2",
+    "@embroider/macros": "^1.13.3"
   },
   "overrides": {
     "@glimmer/manager": "^0.84.3",
