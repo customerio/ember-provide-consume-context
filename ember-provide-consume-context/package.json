@@ -53,6 +53,7 @@
   },
   "dependencies": {
     "@embroider/addon-shim": "^1.0.0",
+    "@embroider/macros": "^1.13.3",
     "@glimmer/component": "^1.1.2"
   },
   "devDependencies": {
