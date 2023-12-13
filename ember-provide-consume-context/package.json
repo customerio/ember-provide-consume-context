@@ -117,6 +117,7 @@
     "version": 2,
     "type": "addon",
     "main": "addon-main.cjs",
+    "build": "addon-main.cjs",
     "app-js": {
       "./components/context-consumer.js": "./dist/_app_/components/context-consumer.js",
       "./components/context-provider.js": "./dist/_app_/components/context-provider.js",

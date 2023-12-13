@@ -1,6 +1,6 @@
 import Ember from 'ember';
 import { overrideGlimmerRuntime } from '../-private/override-glimmer-runtime-classes';
-import { getGlobalConfig, importSync } from '@embroider/macros';
+import { getOwnConfig, importSync, macroCondition } from '@embroider/macros';
 
 export function initialize() {
   if ((Ember as any).__loader?.require == null) {
@@ -8,14 +8,11 @@ export function initialize() {
   }
 
   let glimmerRuntime;
-
-  // In builds with `strictEmber = false`, Ember.__loader.require will throw.
-  // In those cases, we catch the error, and try to access the runtime via the
-  // importSync macro, which will be resolved at build-time.
-  try {
+  console.log('own config', getOwnConfig());
+  if (macroCondition((getOwnConfig() as any)?.staticEmberSource)) {
+    glimmerRuntime = importSync('@glimmer/runtime.js');
+  } else {
     glimmerRuntime = (Ember as any).__loader.require('@glimmer/runtime');
-  } catch {
-    glimmerRuntime = importSync('@glimmer/runtime');
   }
   if (glimmerRuntime == null) {
     return;
