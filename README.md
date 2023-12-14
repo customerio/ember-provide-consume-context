@@ -14,6 +14,24 @@ having to pass arguments at each level (i.e. no prop drilling).
 ember install ember-provide-consume-context
 ```
 
+### Usage with `staticEmberSource`
+
+If you're using this addon with embroider's `staticEmberSource` enabled, you will need to configure embroider's macros for this addon to work.
+
+```
+// ember-cli-build.js
+
+let app = new EmberApp(defaults, {
+  '@embroider/macros': {
+    setConfig: {
+      'ember-provide-consume-context': {
+        staticEmberSource: true
+      },
+    },
+  },
+});
+```
+
 ## Usage
 ### Context providers
 Data can be provided to all of a component's descendants in one of two ways:
