@@ -34,6 +34,7 @@
     "declarations",
     "dist"
   ],
+  "main": "addon-main.cjs",
   "scripts": {
     "build": "concurrently 'npm:build:*'",
     "build:js": "rollup --config",
@@ -53,7 +54,7 @@
   },
   "dependencies": {
     "@embroider/addon-shim": "^1.0.0",
-    "@embroider/macros": "^1.13.3",
+    "@embroider/macros": "^1.13.4",
     "@glimmer/component": "^1.1.2"
   },
   "devDependencies": {

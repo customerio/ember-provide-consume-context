@@ -28,9 +28,6 @@
     "test": "concurrently \"npm:lint\" \"npm:test:*\" --names \"lint,test:\"",
     "test:ember": "ember test"
   },
-  "dependencies": {
-    "@embroider/macros": "^1.13.4"
-  },
   "devDependencies": {
     "@ember/optional-features": "^2.0.0",
     "@ember/string": "^3.0.1",

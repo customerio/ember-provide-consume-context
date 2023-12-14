@@ -8,7 +8,6 @@ export function initialize() {
   }
 
   let glimmerRuntime;
-  console.log('own config', getOwnConfig());
   if (macroCondition((getOwnConfig() as any)?.staticEmberSource)) {
     glimmerRuntime = importSync('@glimmer/runtime.js');
   } else {
