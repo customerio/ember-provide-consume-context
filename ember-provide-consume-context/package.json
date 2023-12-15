@@ -34,6 +34,7 @@
     "declarations",
     "dist"
   ],
+  "main": "addon-main.cjs",
   "scripts": {
     "build": "concurrently 'npm:build:*'",
     "build:js": "rollup --config",
@@ -53,6 +54,7 @@
   },
   "dependencies": {
     "@embroider/addon-shim": "^1.0.0",
+    "@embroider/macros": "^1.13.4",
     "@glimmer/component": "^1.1.2"
   },
   "devDependencies": {
@@ -117,6 +119,7 @@
     "version": 2,
     "type": "addon",
     "main": "addon-main.cjs",
+    "build": "addon-main.cjs",
     "app-js": {
       "./components/context-consumer.js": "./dist/_app_/components/context-consumer.js",
       "./components/context-provider.js": "./dist/_app_/components/context-provider.js",
