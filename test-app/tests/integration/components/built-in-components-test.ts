@@ -4,23 +4,23 @@ import { render, settled } from '@ember/test-helpers';
 import { hbs } from 'ember-cli-htmlbars';
 import { tracked } from '@glimmer/tracking';
 
-class Context {
+class TestContext {
   @tracked count?: number;
   @tracked hidden?: boolean;
 }
 
 interface ThisContext {
-  context: Context;
+  testContext: TestContext;
 }
 
 module('Integration | Built-in components', function (hooks) {
   setupRenderingTest(hooks);
 
-  let context: Context;
+  let testContext: TestContext;
 
   hooks.beforeEach(function (this: ThisContext) {
-    context = new Context();
-    this.context = context;
+    testContext = new TestContext();
+    this.testContext = testContext;
   });
 
   test('a consumer can read context', async function (assert) {
@@ -54,10 +54,10 @@ module('Integration | Built-in components', function (hooks) {
   });
 
   test("a consumer's value updates when provider value changes", async function (assert) {
-    context.count = 1;
+    testContext.count = 1;
 
     await render<ThisContext>(hbs`
-      <ContextProvider @key="my-test-context" @value={{this.context.count}}>
+      <ContextProvider @key="my-test-context" @value={{this.testContext.count}}>
         <ContextConsumer @key="my-test-context" as |count|>
           <div id="content">{{count}}</div>
         </ContextConsumer>
@@ -66,7 +66,7 @@ module('Integration | Built-in components', function (hooks) {
 
     assert.dom('#content').hasText('1');
 
-    context.count = 2;
+    testContext.count = 2;
     await settled();
     assert.dom('#content').hasText('2');
   });
@@ -88,13 +88,31 @@ module('Integration | Built-in components', function (hooks) {
     assert.dom('#content-2').hasText('');
   });
 
+  test('sibling contexts with same key', async function (assert) {
+    await render(hbs`
+      <ContextProvider @key="my-test-context" @value="1">
+        <ContextConsumer @key="my-test-context" as |count|>
+          <div id="content-1">{{count}}</div>
+        </ContextConsumer>
+      </ContextProvider>
+      <ContextProvider @key="my-test-context" @value="2">
+        <ContextConsumer @key="my-test-context" as |count|>
+          <div id="content-2">{{count}}</div>
+        </ContextConsumer>
+      </ContextProvider>
+    `);
+
+    assert.dom('#content-1').hasText('1');
+    assert.dom('#content-2').hasText('2');
+  });
+
   test('consuming context in conditional', async function (assert) {
-    context.count = 1;
-    context.hidden = false;
+    testContext.count = 1;
+    testContext.hidden = false;
 
     await render<ThisContext>(hbs`
-      <ContextProvider @key="my-test-context" @value={{this.context.count}}>
-        {{#unless this.context.hidden}}
+      <ContextProvider @key="my-test-context" @value={{this.testContext.count}}>
+        {{#unless this.testContext.hidden}}
           <ContextConsumer @key="my-test-context" as |count|>
             <div id="content">{{count}}</div>
           </ContextConsumer>
@@ -105,30 +123,30 @@ module('Integration | Built-in components', function (hooks) {
     assert.dom('#content').exists();
     assert.dom('#content').hasText('1');
 
-    context.hidden = true;
+    testContext.hidden = true;
     await settled();
     assert.dom('#content').doesNotExist();
 
-    context.hidden = false;
+    testContext.hidden = false;
     await settled();
     assert.dom('#content').exists();
     assert.dom('#content').hasText('1');
 
-    context.hidden = true;
+    testContext.hidden = true;
     await settled();
-    context.count = 2;
+    testContext.count = 2;
     await settled();
-    context.hidden = false;
+    testContext.hidden = false;
     await settled();
     assert.dom('#content').exists();
     assert.dom('#content').hasText('2');
   });
 
   test('context provider in conditional', async function (assert) {
-    context.hidden = false;
+    testContext.hidden = false;
 
     await render<ThisContext>(hbs`
-      {{#unless this.context.hidden}}
+      {{#unless this.testContext.hidden}}
         <ContextProvider @key="my-test-context" @value="1">
           <ContextConsumer @key="my-test-context" as |count|>
             <div id="content">{{count}}</div>
@@ -140,22 +158,22 @@ module('Integration | Built-in components', function (hooks) {
     assert.dom('#content').exists();
     assert.dom('#content').hasText('1');
 
-    context.hidden = true;
+    testContext.hidden = true;
     await settled();
     assert.dom('#content').doesNotExist();
 
-    context.hidden = false;
+    testContext.hidden = false;
     await settled();
     assert.dom('#content').exists();
     assert.dom('#content').hasText('1');
   });
 
   test('consuming context with another provider in conditional sibling', async function (assert) {
-    context.hidden = true;
+    testContext.hidden = true;
 
     await render<ThisContext>(hbs`
       <ContextProvider @key="my-test-context" @value="1">
-        {{#unless this.context.hidden}}
+        {{#unless this.testContext.hidden}}
           <ContextProvider @key="my-test-context" @value="2">
           </ContextProvider>
         {{/unless}}
@@ -168,11 +186,11 @@ module('Integration | Built-in components', function (hooks) {
 
     assert.dom('#content').hasText('1');
 
-    context.hidden = false;
+    testContext.hidden = false;
     await settled();
     assert.dom('#content').hasText('1');
 
-    context.hidden = true;
+    testContext.hidden = true;
     await settled();
     assert.dom('#content').hasText('1');
   });
