@@ -1,6 +1,5 @@
-import 'ember-source/types';
-// We need this for the pre-stable types ember try scenarios
-import 'ember-source/types/preview';
+// import 'ember-source/types';
+// import 'ember-source/types/preview';
 import '@glint/environment-ember-loose';
 
 import type EmberContextTemplateRegistry from 'ember-provide-consume-context/template-registry';
