@@ -1,7 +1,16 @@
-// Types for compiled templates
-declare module 'test-app/templates/*' {
-  import { TemplateFactory } from 'ember-cli-htmlbars';
+import 'ember-source/types';
+// We need this for the pre-stable types ember try scenarios
+import 'ember-source/types/preview';
+import '@glint/environment-ember-loose';
 
-  const tmpl: TemplateFactory;
-  export default tmpl;
+import type EmberContextTemplateRegistry from 'ember-provide-consume-context/template-registry';
+import Helper from '@ember/component/helper';
+
+declare module '@glint/environment-ember-loose/registry' {
+  export default interface Registry extends EmberContextTemplateRegistry {
+    'page-title': new () => Helper<{
+      Args: { Positional: [string] };
+      Return: void;
+    }>;
+  }
 }
