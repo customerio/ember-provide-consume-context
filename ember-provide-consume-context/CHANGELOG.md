@@ -1,5 +1,11 @@
 # ember-provide-consume-context
 
+## 0.1.1
+
+### Patch Changes
+
+- f59c432: Add tests
+
 ## 0.1.0
 
 ### Minor Changes
