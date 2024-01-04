@@ -13,7 +13,6 @@ module('Integration | Decorators', function (hooks) {
   test('a consumer can read context', async function (assert) {
     class TestProviderComponent extends Component<{
       Element: HTMLDivElement;
-      Args: {};
       Blocks: {
         default: [];
       };
@@ -34,8 +33,6 @@ module('Integration | Decorators', function (hooks) {
 
     class TestConsumerComponent extends Component<{
       Element: HTMLDivElement;
-      Args: {};
-      Blocks: {};
     }> {
       @consume('my-test-context') contextValue!: string;
     }
@@ -69,7 +66,6 @@ module('Integration | Decorators', function (hooks) {
   test('the built-in consumer can read context where provider uses decorator', async function (assert) {
     class TestProviderComponent extends Component<{
       Element: HTMLDivElement;
-      Args: {};
       Blocks: {
         default: [];
       };
@@ -108,7 +104,6 @@ module('Integration | Decorators', function (hooks) {
   test('a consumer updates when provider value changes', async function (assert) {
     class TestProviderComponent extends Component<{
       Element: HTMLDivElement;
-      Args: {};
       Blocks: {
         default: [];
       };
@@ -145,8 +140,6 @@ module('Integration | Decorators', function (hooks) {
 
     class TestConsumerComponent extends Component<{
       Element: HTMLDivElement;
-      Args: {};
-      Blocks: {};
     }> {
       @consume('my-test-context') contextValue!: string;
     }
