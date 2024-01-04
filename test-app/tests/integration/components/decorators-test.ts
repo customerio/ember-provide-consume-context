@@ -131,7 +131,7 @@ module('Integration | Decorators', function (hooks) {
         <div>
           <div>
             {{! @glint-ignore }}
-            <button {{on "click" this.increment}} id="increment">Increment</button>
+            <button {{on "click" this.increment}} id="increment" type="button">Increment</button>
           </div>
 
           <div>
