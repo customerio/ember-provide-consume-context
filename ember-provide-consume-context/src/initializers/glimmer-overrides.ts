@@ -1,16 +1,7 @@
-import Ember from 'ember';
 import { overrideGlimmerRuntime } from '../-private/override-glimmer-runtime-classes';
+import * as glimmerRuntime from '@glimmer/runtime';
 
 export function initialize() {
-  if ((Ember as any).__loader?.require == null) {
-    return;
-  }
-
-  const glimmerRuntime = (Ember as any).__loader.require('@glimmer/runtime');
-  if (glimmerRuntime == null) {
-    return;
-  }
-
   overrideGlimmerRuntime(glimmerRuntime);
 }
 
