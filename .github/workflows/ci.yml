@@ -67,6 +67,9 @@ jobs:
         with:
           node-version: 18
           cache: npm
+      # https://discord.com/channels/480462759797063690/1049716681225797723/1049738716635205772
+      - name: Set legacy peer dependencies
+        run: npm config set legacy-peer-deps=true --location=project
       - name: Install Dependencies
         run: npm ci
       - name: Run Tests

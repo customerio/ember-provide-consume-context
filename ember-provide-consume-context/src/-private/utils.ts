@@ -1,5 +1,18 @@
-import { getOwner } from '@ember/owner';
 import type ContextRegistry from '../context-registry';
+import {
+  dependencySatisfies,
+  importSync,
+  macroCondition,
+} from '@embroider/macros';
+import type Owner from '@ember/owner';
+
+let getOwner: (context: unknown) => Owner | undefined;
+
+if (macroCondition(dependencySatisfies('ember-source', '>=4.10.0'))) {
+  getOwner = (importSync('@ember/owner') as any).getOwner;
+} else {
+  getOwner = (importSync('@ember/application') as any).getOwner;
+}
 
 // TODO: See if we can type the owner
 export function getProvider(owner: any, contextKey: keyof ContextRegistry) {
