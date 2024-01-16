@@ -1,6 +1,6 @@
 {
   "name": "ember-provide-consume-context",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "A context API implementation for Ember.js",
   "keywords": [
     "ember-addon"
@@ -120,7 +120,9 @@
     "version": 2,
     "type": "addon",
     "main": "addon-main.cjs",
-    "externals": ["@glimmer/runtime"],
+    "externals": [
+      "@glimmer/runtime"
+    ],
     "app-js": {
       "./components/context-consumer.js": "./dist/_app_/components/context-consumer.js",
       "./components/context-provider.js": "./dist/_app_/components/context-provider.js",
