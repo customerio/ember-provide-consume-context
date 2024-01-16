@@ -16,6 +16,8 @@ export default {
   // You can augment this if you need to.
   output: addon.output(),
 
+  external: ['@glimmer/runtime'],
+
   plugins: [
     // These are the modules that users should be able to import from your
     // addon. Anything not listed here may get optimized away.
