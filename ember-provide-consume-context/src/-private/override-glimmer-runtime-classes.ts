@@ -26,28 +26,36 @@ function overrideVM(runtime: any) {
     // "program" instance, which is all we need to get the current opcode.
     const opcode = this.program.opcode(this.pc);
 
-    if (opcode.type === Op.GetComponentSelf) {
-      // Get the component instance from the VM
-      // (that's the VM's component instance, not the Glimmer Component one)
-      // https://github.com/glimmerjs/glimmer-vm/blob/68d371bdccb41bc239b8f70d832e956ce6c349d8/packages/%40glimmer/runtime/lib/compiled/opcodes/component.ts#L579
-      const instance = this.fetchValue<ComponentInstance>(opcode.op1);
+    // Getting "type" may fail with "Expected value to be present", coming from
+    // https://github.com/glimmerjs/glimmer-vm/blob/f03632077d98910de7ae3f7c22ebed98cb4f909a/packages/%40glimmer/program/lib/program.ts#L116
+    try {
+      const { type, op1 } = opcode;
 
-      // Add the component to the stack
-      this.env.provideConsumeContextContainer?.enter(instance);
-      // When there are updates/rerenders, make sure we add to the stack again
-      this.updateWith(new ProvideConsumeContextUpdateOpcode(instance));
-    }
+      if (type === Op.GetComponentSelf) {
+        // Get the component instance from the VM
+        // (that's the VM's component instance, not the Glimmer Component one)
+        // https://github.com/glimmerjs/glimmer-vm/blob/68d371bdccb41bc239b8f70d832e956ce6c349d8/packages/%40glimmer/runtime/lib/compiled/opcodes/component.ts#L579
+        const instance = this.fetchValue<ComponentInstance>(op1);
 
-    if (opcode.type === Op.DidRenderLayout) {
-      // Get the component instance from the VM
-      // (that's the VM's component instance, not the Glimmer Component one)
-      // https://github.com/glimmerjs/glimmer-vm/blob/68d371bdccb41bc239b8f70d832e956ce6c349d8/packages/%40glimmer/runtime/lib/compiled/opcodes/component.ts#L832
-      const instance = this.fetchValue<ComponentInstance>(opcode.op1);
+        // Add the component to the stack
+        this.env.provideConsumeContextContainer?.enter(instance);
+        // When there are updates/rerenders, make sure we add to the stack again
+        this.updateWith(new ProvideConsumeContextUpdateOpcode(instance));
+      }
 
-      // After the component has rendered, remove it from the stack
-      this.env.provideConsumeContextContainer?.exit(instance);
-      // On updates/rerenders, make sure to remove from the stack again
-      this.updateWith(new ProvideConsumeContextDidRenderOpcode(instance));
+      if (type === Op.DidRenderLayout) {
+        // Get the component instance from the VM
+        // (that's the VM's component instance, not the Glimmer Component one)
+        // https://github.com/glimmerjs/glimmer-vm/blob/68d371bdccb41bc239b8f70d832e956ce6c349d8/packages/%40glimmer/runtime/lib/compiled/opcodes/component.ts#L832
+        const instance = this.fetchValue<ComponentInstance>(op1);
+
+        // After the component has rendered, remove it from the stack
+        this.env.provideConsumeContextContainer?.exit(instance);
+        // On updates/rerenders, make sure to remove from the stack again
+        this.updateWith(new ProvideConsumeContextDidRenderOpcode(instance));
+      }
+    } catch {
+      // ignore
     }
 
     return originalNext.apply(this);
