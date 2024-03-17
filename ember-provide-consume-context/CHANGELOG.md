@@ -1,5 +1,11 @@
 # ember-provide-consume-context
 
+## 0.3.0
+
+### Minor Changes
+
+- a0adf29: Support multiple copies of addon
+
 ## 0.2.0
 
 ### Minor Changes
