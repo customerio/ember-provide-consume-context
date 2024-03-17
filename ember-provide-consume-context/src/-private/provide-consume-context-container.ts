@@ -2,32 +2,32 @@ import type { ComponentInstance } from '@glimmer/interfaces';
 import { Stack } from '@glimmer/util';
 import type ContextRegistry from '../context-registry';
 
-// Map of component class that contain @provide decorated properties, with their
-// respective context keys and property names
-export const DECORATED_PROPERTY_CLASSES = new WeakMap<
-  any,
-  Record<keyof ContextRegistry, string>
->();
-// Map of instances of the ContextProvider component, or components that contain
-// @provide decorated properties
-export const PROVIDER_INSTANCES = new WeakMap<any, Record<string, string>>();
+export const EMBER_PROVIDE_CONSUME_CONTEXT_KEY = Symbol.for(
+  'EMBER_PROVIDE_CONSUME_CONTEXT_KEY',
+);
 
-export function trackProviderInstanceContexts(
+export function setContextMetadataOnContextProviderInstance(
   instance: any,
   contextDefinitions: [
     contextKey: keyof ContextRegistry,
     propertyKey: string,
   ][],
 ) {
-  const currentContexts = PROVIDER_INSTANCES.get(instance);
-  if (currentContexts == null) {
-    PROVIDER_INSTANCES.set(instance, Object.fromEntries(contextDefinitions));
-  } else {
-    PROVIDER_INSTANCES.set(instance, {
-      ...currentContexts,
-      ...Object.fromEntries(contextDefinitions),
-    });
-  }
+  const currentContexts = Object.getOwnPropertyDescriptor(
+    instance,
+    EMBER_PROVIDE_CONSUME_CONTEXT_KEY,
+  );
+
+  const contextsValue = {
+    ...currentContexts?.value,
+    ...Object.fromEntries(contextDefinitions),
+  };
+
+  Object.defineProperty(instance, EMBER_PROVIDE_CONSUME_CONTEXT_KEY, {
+    value: contextsValue,
+    writable: true,
+    configurable: true,
+  });
 }
 
 interface Contexts {
@@ -71,34 +71,11 @@ export class ProvideConsumeContextContainer {
   }
 
   enter(instance: ComponentInstance): void {
-    const componentDefinitionClass = instance.definition.state;
     const actualComponentInstance = (instance?.state as any)?.component;
 
     if (actualComponentInstance != null) {
-      const isDecorated = DECORATED_PROPERTY_CLASSES.has(
-        componentDefinitionClass,
-      );
-
-      // If this is an instance of a component that contains @provide decorated
-      // properties, add this instance - and the context keys - to the
-      // PROVIDE_INSTANCES map, so that the context values can be set in the
-      // next step
-      if (isDecorated) {
-        const contextKeys = DECORATED_PROPERTY_CLASSES.get(
-          componentDefinitionClass,
-        );
-
-        if (contextKeys != null) {
-          trackProviderInstanceContexts(
-            actualComponentInstance,
-            Object.entries(contextKeys) as [keyof ContextRegistry, string][],
-          );
-        }
-      }
-
-      const isProviderInstance = PROVIDER_INSTANCES.has(
-        actualComponentInstance,
-      );
+      const isProviderInstance =
+        actualComponentInstance[EMBER_PROVIDE_CONSUME_CONTEXT_KEY];
 
       if (isProviderInstance) {
         this.registerProvider(actualComponentInstance);
@@ -131,9 +108,11 @@ export class ProvideConsumeContextContainer {
       }
     }
 
-    const registeredContexts = PROVIDER_INSTANCES.get(provider);
+    const registeredContexts = provider[EMBER_PROVIDE_CONSUME_CONTEXT_KEY];
     if (registeredContexts != null) {
-      Object.entries(registeredContexts).forEach(([contextKey, key]) => {
+      Object.entries(
+        registeredContexts as Record<keyof ContextRegistry, string>,
+      ).forEach(([contextKey, key]) => {
         if (key in provider) {
           providerContexts[contextKey] = {
             instance: provider,

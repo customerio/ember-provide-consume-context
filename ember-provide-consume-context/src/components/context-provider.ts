@@ -1,5 +1,5 @@
 import Component from '@glimmer/component';
-import { trackProviderInstanceContexts } from '../-private/provide-consume-context-container';
+import { setContextMetadataOnContextProviderInstance } from '../-private/provide-consume-context-container';
 import type ContextRegistry from '../context-registry';
 
 interface ContextProviderSignature<K extends keyof ContextRegistry> {
@@ -18,7 +18,7 @@ export default class ContextProvider<
   constructor(owner: unknown, args: ContextProviderSignature<K>['Args']) {
     super(owner, args);
 
-    trackProviderInstanceContexts(this, [[args.key, 'value']]);
+    setContextMetadataOnContextProviderInstance(this, [[args.key, 'value']]);
   }
 
   get value() {
