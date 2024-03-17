@@ -18,13 +18,10 @@ export function setContextMetadataOnContextProviderInstance(
     EMBER_PROVIDE_CONSUME_CONTEXT_KEY,
   );
 
-  const contextsValue =
-    currentContexts != null
-      ? {
-          ...currentContexts.value,
-          ...Object.fromEntries(contextDefinitions),
-        }
-      : Object.fromEntries(contextDefinitions);
+  const contextsValue = {
+    ...currentContexts?.value,
+    ...Object.fromEntries(contextDefinitions),
+  };
 
   Object.defineProperty(instance, EMBER_PROVIDE_CONSUME_CONTEXT_KEY, {
     value: contextsValue,

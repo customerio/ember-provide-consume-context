@@ -13,15 +13,10 @@ export function provide(contextKey: keyof ContextRegistry) {
 
     // A class can have multiple @provide decorated properties, we need to
     // merge the definitions
-    const contextsValue =
-      currentContexts != null
-        ? {
-            ...currentContexts.value,
-            [contextKey]: key,
-          }
-        : {
-            [contextKey]: key,
-          };
+    const contextsValue = {
+      ...currentContexts?.value,
+      [contextKey]: key,
+    };
 
     Object.defineProperty(target, EMBER_PROVIDE_CONSUME_CONTEXT_KEY, {
       value: contextsValue,
