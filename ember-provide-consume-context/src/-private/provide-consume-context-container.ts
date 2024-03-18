@@ -35,7 +35,7 @@ interface Contexts {
 }
 
 interface ContextEntry {
-  // instance is an instance of a Glimmer component
+  // instance is an instance of a Glimmer component, or a "mock provider" from test-support helpers
   instance: any;
   // the property to read from the provider instance
   key: string;
@@ -54,6 +54,10 @@ export class ProvideConsumeContextContainer {
   // component instance.
   contexts = new WeakMap<any, Contexts>();
 
+  // Global contexts are registered by test-support helpers to allow easily
+  // providing context values in tests.
+  #globalContexts: Contexts | null = null;
+
   begin(): void {
     this.reset();
   }
@@ -69,6 +73,34 @@ export class ProvideConsumeContextContainer {
       }
     }
   }
+
+  registerMockProvider = <
+    T extends keyof ContextRegistry,
+    U extends ContextRegistry[T],
+  >(
+    name: T,
+    value: U,
+  ) => {
+    const mockProviderContext = {
+      instance: {
+        get value() {
+          return value;
+        },
+      },
+      key: 'value',
+    };
+
+    if (this.#globalContexts?.[name] != null) {
+      console.warn(
+        `A context provider with name "${name}" is already defined, and will be overwritten.`,
+      );
+    }
+
+    this.#globalContexts = {
+      ...this.#globalContexts,
+      [name]: mockProviderContext,
+    };
+  };
 
   enter(instance: ComponentInstance): void {
     const actualComponentInstance = (instance?.state as any)?.component;
@@ -99,12 +131,18 @@ export class ProvideConsumeContextContainer {
     const { current } = this;
 
     let providerContexts: Contexts = {};
+
+    // If global contexts are defined, make sure providers can read them
+    if (this.#globalContexts != null) {
+      providerContexts = { ...this.#globalContexts };
+    }
+
     if (this.contexts.has(current)) {
       // If a provider is nested within another provider, we merge their
       // contexts
       const context = this.contexts.get(current);
       if (context != null) {
-        providerContexts = { ...context };
+        providerContexts = { ...providerContexts, ...context };
       }
     }
 
@@ -128,12 +166,13 @@ export class ProvideConsumeContextContainer {
   private registerComponent(component: any) {
     const { current } = this;
 
-    // If a current context reference exists, register the component to it
-    if (this.contexts.has(current)) {
+    const globalContexts = this.#globalContexts ?? {};
+
+    // If a current context reference or global contexts exist, register them to the component
+    if (this.contexts.has(current) || Object.keys(globalContexts).length > 0) {
       const context = this.contexts.get(current);
-      if (context != null) {
-        this.contexts.set(component, context);
-      }
+      const mergedContexts = { ...globalContexts, ...context };
+      this.contexts.set(component, mergedContexts);
     }
   }
 }

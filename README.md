@@ -239,6 +239,83 @@ export default class MyChildComponent extends Component {
 }
 ```
 
+### Testing
+The addon includes two test helpers for setting up context providers in integration tests:
+- `provide`
+- `setupRenderWrapper`
+
+#### `provide`
+The `provide` helper can be used to set up a global context provider for a test, by calling
+it with a context key and its value, for example:
+
+```ts
+import { module, test } from 'qunit';
+import { setupRenderingTest } from 'ember-qunit';
+import { render } from '@ember/test-helpers';
+import { hbs } from 'ember-cli-htmlbars';
+import { provide } from 'ember-provide-consume-context/test-support';
+
+module('component tests', function (hooks) {
+  setupRenderingTest(hooks);
+
+  hooks.beforeEach(function (this) {
+    provide('my-test-context', {
+      count: 1,
+    });
+  });
+
+  test('can read context', async function (assert) {
+    await render(hbs`
+      <ContextConsumer @key="my-test-context" as |data|>
+        <div id="content">{{data.count}}</div>
+      </ContextConsumer>
+    `);
+
+    assert.dom('#content').hasText('1');
+  });
+});
+```
+
+#### `setupRenderWrapper`
+`setupRenderWrapper` can be used to define a template to wrap contents rendered via `render` in a test.
+
+This is useful, for example, when it's necessary to wrap content in a context provider exposed by
+and addon, or an internal context provider from the application. For example:
+
+```ts
+import { module, test } from 'qunit';
+import { setupRenderingTest } from 'ember-qunit';
+import { render } from '@ember/test-helpers';
+import { hbs } from 'ember-cli-htmlbars';
+import { setupRenderWrapper } from 'ember-provide-consume-context/test-support';
+
+module('component tests', function (hooks) {
+  setupRenderingTest(hooks);
+
+  hooks.beforeEach(function (this) {
+    setupRenderWrapper(hbs`
+      <ThemeProvider @mode="dark">
+        {{outlet}}
+      </ThemeProvider>
+    `);
+  });
+
+  test('can read context', async function (assert) {
+    await render(hbs`
+      <DesignSystemButton>Button</DesignSystemButton>
+    `);
+
+    // renders in dark mode
+  });
+});
+```
+
+> [!IMPORTANT]  
+> The render wrapper must use `{{outlet}}` rather than `{{yield}}` to render the wrapped content.
+>
+> Internally, `setupRenderWrapper` overrrides the outlet template defined by `@ember/test-helpers`: https://github.com/emberjs/ember-test-helpers/blob/9cec68dc6aa9c0a7a449eb89797eb81299fa727f/addon/addon-test-support/%40ember/test-helpers/setup-rendering-context.ts#L68-L69
+
+
 ## Inspiration
 The idea was to create an API similar to the Context API in React
 - [`React Context API`](https://react.dev/reference/react/createContext): The

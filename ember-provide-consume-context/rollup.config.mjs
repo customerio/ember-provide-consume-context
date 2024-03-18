@@ -27,6 +27,7 @@ export default {
       'index.js',
       'template-registry.js',
       'context-registry.js',
+      'test-support/**/*.js',
     ]),
 
     // These are the modules that should get reexported into the traditional
