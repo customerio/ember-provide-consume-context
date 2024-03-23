@@ -1,5 +1,11 @@
 # ember-provide-consume-context
 
+## 0.3.1
+
+### Patch Changes
+
+- 611b1df: Add context provider test helpers
+
 ## 0.3.0
 
 ### Minor Changes
