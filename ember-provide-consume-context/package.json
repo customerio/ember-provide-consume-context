@@ -32,7 +32,7 @@
         "./declarations/test-support/index.d.ts"
       ],
       "*": [
-        "declarations/*"
+        "./declarations/*"
       ]
     }
   },
