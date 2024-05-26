@@ -1,6 +1,6 @@
 {
   "name": "ember-provide-consume-context",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "A context API implementation for Ember.js",
   "keywords": [
     "ember-addon"
@@ -28,8 +28,11 @@
   },
   "typesVersions": {
     "*": {
+      "test-support": [
+        "./declarations/test-support/index.d.ts"
+      ],
       "*": [
-        "declarations/*"
+        "./declarations/*"
       ]
     }
   },
