@@ -1,5 +1,11 @@
 # ember-provide-consume-context
 
+## 0.3.2
+
+### Patch Changes
+
+- 16cc998: Fix test-support typesVersions
+
 ## 0.3.1
 
 ### Patch Changes
