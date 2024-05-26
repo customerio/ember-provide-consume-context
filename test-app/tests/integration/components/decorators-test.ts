@@ -1,6 +1,6 @@
 import { module, test } from 'qunit';
 import { setupRenderingTest } from 'ember-qunit';
-import { render, click } from '@ember/test-helpers';
+import { render, click, settled } from '@ember/test-helpers';
 import { hbs } from 'ember-cli-htmlbars';
 import Component from '@glimmer/component';
 import { setComponentTemplate } from '@ember/component';
@@ -61,6 +61,212 @@ module('Integration | Decorators', function (hooks) {
     `);
 
     assert.dom('#content').hasText('1');
+  });
+
+  test('providing a class instance', async function (assert) {
+    class MyTestClass {
+      @tracked value = 1;
+    }
+
+    const testInstance = new MyTestClass();
+
+    class TestProviderComponent extends Component<{
+      Element: HTMLDivElement;
+      Blocks: {
+        default: [];
+      };
+    }> {
+      @provide('my-test-context')
+      contextState = testInstance;
+    }
+
+    setComponentTemplate(
+      // @ts-ignore
+      hbs`{{! @glint-ignore }}
+        <div>{{yield}}</div>
+      `,
+      TestProviderComponent,
+    );
+
+    class TestConsumerComponent extends Component<{
+      Element: HTMLDivElement;
+    }> {
+      @consume('my-test-context') contextValue!: string;
+    }
+
+    setComponentTemplate(
+      // @ts-ignore
+      hbs`{{! @glint-ignore }}
+        <div id="content">{{this.contextValue.value}}</div>
+      `,
+      TestConsumerComponent,
+    );
+
+    interface TestContext {
+      TestProviderComponent: typeof TestProviderComponent;
+      TestConsumerComponent: typeof TestConsumerComponent;
+    }
+    (this as unknown as TestContext).TestProviderComponent =
+      TestProviderComponent;
+    (this as unknown as TestContext).TestConsumerComponent =
+      TestConsumerComponent;
+
+    await render<TestContext>(hbs`
+      <this.TestProviderComponent>
+        <this.TestConsumerComponent />
+      </this.TestProviderComponent>
+    `);
+
+    assert.dom('#content').hasText('1');
+
+    testInstance.value = 2;
+    await settled();
+    assert.dom('#content').hasText('2');
+  });
+
+  test('a consumer can read context during initialization', async function (assert) {
+    class TestProviderComponent extends Component<{
+      Element: HTMLDivElement;
+      Blocks: {
+        default: [];
+      };
+    }> {
+      @provide('my-test-context')
+      get myState() {
+        return '1';
+      }
+    }
+
+    setComponentTemplate(
+      // @ts-ignore
+      hbs`{{! @glint-ignore }}
+        <div>{{yield}}</div>
+      `,
+      TestProviderComponent,
+    );
+
+    class TestConsumerComponent extends Component<{
+      Element: HTMLDivElement;
+    }> {
+      @consume('my-test-context') _contextValue!: string;
+
+      contextValue = this._contextValue;
+    }
+
+    setComponentTemplate(
+      // @ts-ignore
+      hbs`{{! @glint-ignore }}
+        <div id="content">{{this.contextValue}}</div>
+      `,
+      TestConsumerComponent,
+    );
+
+    interface TestContext {
+      TestProviderComponent: typeof TestProviderComponent;
+      TestConsumerComponent: typeof TestConsumerComponent;
+    }
+    (this as unknown as TestContext).TestProviderComponent =
+      TestProviderComponent;
+    (this as unknown as TestContext).TestConsumerComponent =
+      TestConsumerComponent;
+
+    await render<TestContext>(hbs`
+      <this.TestProviderComponent>
+        <this.TestConsumerComponent />
+      </this.TestProviderComponent>
+    `);
+
+    assert.dom('#content').hasText('1');
+  });
+
+  test('a provider can read parent provider with same key in constructor', async function (assert) {
+    class TestProviderComponent extends Component<{
+      Element: HTMLDivElement;
+      Blocks: {
+        default: [];
+      };
+    }> {
+      @provide('my-test-context')
+      get myState() {
+        return '1';
+      }
+    }
+
+    setComponentTemplate(
+      // @ts-ignore
+      hbs`{{! @glint-ignore }}
+        <div>{{yield}}</div>
+      `,
+      TestProviderComponent,
+    );
+
+    class TestProviderComponent2 extends Component<{
+      Element: HTMLDivElement;
+      Blocks: {
+        default: [];
+      };
+    }> {
+      @consume('my-test-context') _parentContextValue!: string;
+      parentContextValue = this._parentContextValue;
+
+      @provide('my-test-context')
+      get myState() {
+        return '2';
+      }
+
+      @provide('my-test-parent-context')
+      get myParentState() {
+        return this.parentContextValue;
+      }
+    }
+
+    setComponentTemplate(
+      // @ts-ignore
+      hbs`{{! @glint-ignore }}
+        <div>{{yield}}</div>
+      `,
+      TestProviderComponent2,
+    );
+
+    class TestConsumerComponent extends Component<{
+      Element: HTMLDivElement;
+    }> {
+      @consume('my-test-context') contextValue!: string;
+      @consume('my-test-parent-context') parentContextValue!: string;
+    }
+
+    setComponentTemplate(
+      // @ts-ignore
+      hbs`{{! @glint-ignore }}
+        <div id="content">{{this.contextValue}}</div>
+        {{! @glint-ignore }}
+        <div id="parent-content">{{this.parentContextValue}}</div>
+      `,
+      TestConsumerComponent,
+    );
+
+    interface TestContext {
+      TestProviderComponent: typeof TestProviderComponent;
+      TestProviderComponent2: typeof TestProviderComponent2;
+      TestConsumerComponent: typeof TestConsumerComponent;
+    }
+    (this as unknown as TestContext).TestProviderComponent =
+      TestProviderComponent;
+    (this as unknown as TestContext).TestProviderComponent2 =
+      TestProviderComponent2;
+    (this as unknown as TestContext).TestConsumerComponent =
+      TestConsumerComponent;
+
+    await render<TestContext>(hbs`
+      <this.TestProviderComponent>
+        <this.TestProviderComponent2>
+          <this.TestConsumerComponent />
+        </this.TestProviderComponent2>
+      </this.TestProviderComponent>
+    `);
+
+    assert.dom('#content').hasText('2');
+    assert.dom('#parent-content').hasText('1');
   });
 
   test('a component can provide multiple contexts', async function (assert) {
@@ -401,6 +607,247 @@ module('Integration | Decorators', function (hooks) {
 
     assert.dom('#content-1').hasText('1');
     assert.dom('#content-2').hasText('');
+  });
+
+  test('consuming context in conditional', async function (assert) {
+    class TestProviderComponent extends Component<{
+      Element: HTMLDivElement;
+      Blocks: {
+        default: [];
+      };
+    }> {
+      @tracked count = 1;
+
+      @provide('my-test-context')
+      get myState() {
+        return this.count;
+      }
+
+      increment = () => {
+        this.count++;
+      };
+    }
+
+    setComponentTemplate(
+      // @ts-ignore
+      hbs`{{! @glint-ignore }}
+        <div>
+          {{! @glint-ignore }}
+          <button {{on "click" this.increment}} id="increment" type="button">Increment</button>
+          {{! @glint-ignore }}
+          {{yield}}
+        </div>
+      `,
+      TestProviderComponent,
+    );
+
+    class TestConsumerComponent extends Component<{
+      Element: HTMLDivElement;
+    }> {
+      @consume('my-test-context') contextValue!: string;
+    }
+
+    setComponentTemplate(
+      // @ts-ignore
+      hbs`{{! @glint-ignore }}
+        <div id="content">{{this.contextValue}}</div>
+      `,
+      TestConsumerComponent,
+    );
+
+    class TrackedContainer {
+      @tracked hidden = false;
+    }
+
+    const trackedContainer = new TrackedContainer();
+
+    interface TestContext {
+      TestProviderComponent: typeof TestProviderComponent;
+      TestConsumerComponent: typeof TestConsumerComponent;
+      trackedContainer: TrackedContainer;
+    }
+    (this as unknown as TestContext).TestProviderComponent =
+      TestProviderComponent;
+    (this as unknown as TestContext).TestConsumerComponent =
+      TestConsumerComponent;
+    (this as unknown as TestContext).trackedContainer = trackedContainer;
+
+    await render<TestContext>(hbs`
+      <this.TestProviderComponent>
+        {{#unless this.trackedContainer.hidden}}
+          <this.TestConsumerComponent />
+        {{/unless}}
+      </this.TestProviderComponent>
+    `);
+
+    assert.dom('#content').exists();
+    assert.dom('#content').hasText('1');
+
+    trackedContainer.hidden = true;
+    await settled();
+    assert.dom('#content').doesNotExist();
+
+    trackedContainer.hidden = false;
+    await settled();
+    assert.dom('#content').exists();
+    assert.dom('#content').hasText('1');
+
+    trackedContainer.hidden = true;
+    await settled();
+    await click('#increment');
+    trackedContainer.hidden = false;
+    await settled();
+    assert.dom('#content').exists();
+    assert.dom('#content').hasText('2');
+  });
+
+  test('context provider in conditional', async function (assert) {
+    class TestProviderComponent extends Component<{
+      Element: HTMLDivElement;
+      Blocks: {
+        default: [];
+      };
+    }> {
+      @provide('my-test-context')
+      get myState() {
+        return '1';
+      }
+    }
+
+    setComponentTemplate(
+      // @ts-ignore
+      hbs`{{! @glint-ignore }}
+        <div>{{yield}}</div>
+      `,
+      TestProviderComponent,
+    );
+
+    class TestConsumerComponent extends Component<{
+      Element: HTMLDivElement;
+    }> {
+      @consume('my-test-context') contextValue!: string;
+    }
+
+    setComponentTemplate(
+      // @ts-ignore
+      hbs`{{! @glint-ignore }}
+        <div id="content">{{this.contextValue}}</div>
+      `,
+      TestConsumerComponent,
+    );
+
+    class TrackedContainer {
+      @tracked hidden = false;
+    }
+
+    const trackedContainer = new TrackedContainer();
+
+    interface TestContext {
+      TestProviderComponent: typeof TestProviderComponent;
+      TestConsumerComponent: typeof TestConsumerComponent;
+      trackedContainer: TrackedContainer;
+    }
+    (this as unknown as TestContext).TestProviderComponent =
+      TestProviderComponent;
+    (this as unknown as TestContext).TestConsumerComponent =
+      TestConsumerComponent;
+    (this as unknown as TestContext).trackedContainer = trackedContainer;
+
+    await render<TestContext>(hbs`
+      {{#unless this.trackedContainer.hidden}}
+        <this.TestProviderComponent>
+          <this.TestConsumerComponent />
+        </this.TestProviderComponent>
+      {{/unless}}
+    `);
+
+    assert.dom('#content').exists();
+    assert.dom('#content').hasText('1');
+
+    trackedContainer.hidden = true;
+    await settled();
+    assert.dom('#content').doesNotExist();
+
+    trackedContainer.hidden = false;
+    await settled();
+    assert.dom('#content').exists();
+    assert.dom('#content').hasText('1');
+  });
+
+  test('consuming context with another provider in conditional sibling', async function (assert) {
+    class TestProviderComponent extends Component<{
+      Args: {
+        value: string;
+      };
+      Element: HTMLDivElement;
+      Blocks: {
+        default: [];
+      };
+    }> {
+      @provide('my-test-context')
+      get myState() {
+        return this.args.value;
+      }
+    }
+
+    setComponentTemplate(
+      // @ts-ignore
+      hbs`{{! @glint-ignore }}
+        <div>{{yield}}</div>
+      `,
+      TestProviderComponent,
+    );
+
+    class TestConsumerComponent extends Component<{
+      Element: HTMLDivElement;
+    }> {
+      @consume('my-test-context') contextValue!: string;
+    }
+
+    setComponentTemplate(
+      // @ts-ignore
+      hbs`{{! @glint-ignore }}
+        <div id="content">{{this.contextValue}}</div>
+      `,
+      TestConsumerComponent,
+    );
+
+    class TrackedContainer {
+      @tracked hidden = true;
+    }
+
+    const trackedContainer = new TrackedContainer();
+
+    interface TestContext {
+      TestProviderComponent: typeof TestProviderComponent;
+      TestConsumerComponent: typeof TestConsumerComponent;
+      trackedContainer: TrackedContainer;
+    }
+    (this as unknown as TestContext).TestProviderComponent =
+      TestProviderComponent;
+    (this as unknown as TestContext).TestConsumerComponent =
+      TestConsumerComponent;
+    (this as unknown as TestContext).trackedContainer = trackedContainer;
+
+    await render<TestContext>(hbs`
+      <this.TestProviderComponent @value="1">
+        {{#unless this.trackedContainer.hidden}}
+          <this.TestProviderComponent @value="2" />
+        {{/unless}}
+
+        <this.TestConsumerComponent/>
+      </this.TestProviderComponent>
+    `);
+
+    assert.dom('#content').hasText('1');
+
+    trackedContainer.hidden = false;
+    await settled();
+    assert.dom('#content').hasText('1');
+
+    trackedContainer.hidden = true;
+    await settled();
+    assert.dom('#content').hasText('1');
   });
 
   test('nesting different contexts', async function (assert) {

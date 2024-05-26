@@ -29,7 +29,7 @@ export function getProvider(owner: any, contextKey: keyof ContextRegistry) {
     return null;
   }
 
-  const contextsObject = provideConsumeContextContainer.contexts.get(owner);
+  const contextsObject = provideConsumeContextContainer.contextsFor(owner);
   return contextsObject?.[contextKey];
 }
 

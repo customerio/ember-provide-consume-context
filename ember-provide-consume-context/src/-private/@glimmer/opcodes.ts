@@ -7,6 +7,7 @@
 // This is safe, because the opcodes should be stable.
 // https://github.com/glimmerjs/glimmer-vm/blob/68d371bdccb41bc239b8f70d832e956ce6c349d8/packages/%40glimmer/vm/lib/opcodes.ts#L196
 export const enum Op {
+  CreateComponent = 87,
   GetComponentSelf = 90,
   DidRenderLayout = 100,
 }
