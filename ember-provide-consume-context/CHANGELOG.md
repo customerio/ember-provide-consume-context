@@ -1,5 +1,11 @@
 # ember-provide-consume-context
 
+## 0.4.0
+
+### Minor Changes
+
+- 97118fd: Update @ember/test-helpers to v4
+
 ## 0.3.2
 
 ### Patch Changes
