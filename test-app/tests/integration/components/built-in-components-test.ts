@@ -23,6 +23,16 @@ module('Integration | Built-in components', function (hooks) {
     this.testContext = testContext;
   });
 
+  test('consuming a non-existent context returns `undefined`', async function (assert) {
+    await render(hbs`
+      <ContextConsumer @key="my-test-context" as |count|>
+        <div id="content">{{if (eq count undefined) "undefined" "other"}}</div>
+      </ContextConsumer>
+    `);
+
+    assert.dom('#content').hasText('undefined');
+  });
+
   test('a consumer can read context', async function (assert) {
     await render(hbs`
       <ContextProvider @key="my-test-context" @value="5">

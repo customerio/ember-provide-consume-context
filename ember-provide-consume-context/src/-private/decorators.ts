@@ -31,12 +31,12 @@ export function consume<K extends keyof ContextRegistry>(
 ): PropertyDecorator {
   return function decorator() {
     return {
-      get(): ContextRegistry[K] | null | undefined {
+      get(): ContextRegistry[K] | undefined {
         if (hasContext(this, contextKey)) {
           return getContextValue(this, contextKey);
         }
 
-        return null;
+        return undefined;
       },
     };
   };
