@@ -1,5 +1,11 @@
 # ember-provide-consume-context
 
+## 0.5.0
+
+### Minor Changes
+
+- 446d9ca: Make `consume` and `ContextConsumer` return `undefined` rather than `null`
+
 ## 0.4.0
 
 ### Minor Changes
