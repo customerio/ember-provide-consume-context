@@ -14,7 +14,7 @@
 ## Building the addon
 
 - `cd ember-provide-consume-context`
-- `npm build`
+- `npm run build`
 
 ## Running tests
 

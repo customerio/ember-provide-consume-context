@@ -10,6 +10,32 @@ import { tracked } from '@glimmer/tracking';
 module('Integration | Decorators', function (hooks) {
   setupRenderingTest(hooks);
 
+  test('consuming a non-existent context returns `undefined`', async function (assert) {
+    class TestConsumerComponent extends Component<{
+      Element: HTMLDivElement;
+    }> {
+      @consume('my-test-context') contextValue: string | undefined;
+    }
+
+    setComponentTemplate(
+      // @ts-ignore
+      hbs`{{! @glint-ignore }}
+        <div id="content">{{if (eq this.contextValue undefined) "undefined" "other"}}</div>
+      `,
+      TestConsumerComponent,
+    );
+
+    interface TestContext {
+      TestConsumerComponent: typeof TestConsumerComponent;
+    }
+    (this as unknown as TestContext).TestConsumerComponent =
+      TestConsumerComponent;
+
+    await render<TestContext>(hbs`<this.TestConsumerComponent />`);
+
+    assert.dom('#content').hasText('undefined');
+  });
+
   test('a consumer can read context', async function (assert) {
     class TestProviderComponent extends Component<{
       Element: HTMLDivElement;
