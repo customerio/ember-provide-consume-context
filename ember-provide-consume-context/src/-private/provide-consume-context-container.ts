@@ -58,6 +58,8 @@ export class ProvideConsumeContextContainer {
   // providing context values in tests.
   #globalContexts: Contexts | null = null;
 
+  #isCreatingComponent = false;
+
   begin(): void {
     this.reset();
   }
@@ -103,6 +105,11 @@ export class ProvideConsumeContextContainer {
   };
 
   enter(instance: ComponentInstance): void {
+    // When "enter" is called, a component instance has already been created.
+    // Update the flag to reflect that.
+    // See the "contextsFor" method below for how this flag is used.
+    this.#isCreatingComponent = false;
+
     const actualComponentInstance = (instance?.state as any)?.component;
 
     if (actualComponentInstance != null) {
@@ -128,25 +135,11 @@ export class ProvideConsumeContextContainer {
   }
 
   private registerProvider(provider: any) {
-    const { current } = this;
-
-    let providerContexts: Contexts = {};
-
-    // If global contexts are defined, make sure providers can read them
-    if (this.#globalContexts != null) {
-      providerContexts = { ...this.#globalContexts };
-    }
-
-    if (this.contexts.has(current)) {
-      // If a provider is nested within another provider, we merge their
-      // contexts
-      const context = this.contexts.get(current);
-      if (context != null) {
-        providerContexts = { ...providerContexts, ...context };
-      }
-    }
+    const providerContexts: Contexts = this.currentContexts();
 
     const registeredContexts = provider[EMBER_PROVIDE_CONSUME_CONTEXT_KEY];
+    // If the provider has registered contexts, store references
+    // to them on the current contexts object
     if (registeredContexts != null) {
       Object.entries(
         registeredContexts as Record<keyof ContextRegistry, string>,
@@ -164,15 +157,45 @@ export class ProvideConsumeContextContainer {
   }
 
   private registerComponent(component: any) {
+    const currentContexts = this.currentContexts();
+
+    // If a current context reference or global contexts exist, register them to the component
+    if (Object.keys(currentContexts).length > 0) {
+      this.contexts.set(component, currentContexts);
+    }
+  }
+
+  currentContexts() {
     const { current } = this;
 
     const globalContexts = this.#globalContexts ?? {};
 
-    // If a current context reference or global contexts exist, register them to the component
     if (this.contexts.has(current) || Object.keys(globalContexts).length > 0) {
       const context = this.contexts.get(current);
-      const mergedContexts = { ...globalContexts, ...context };
-      this.contexts.set(component, mergedContexts);
+      return { ...globalContexts, ...context };
     }
+
+    return {};
+  }
+
+  contextsFor(component: any) {
+    if (this.contexts.has(component)) {
+      return this.contexts.get(component);
+    }
+
+    // If a context for this component is not yet registered, but
+    // we're in the phase of initializing a component, return
+    // the current contexts, so that the values can be read in constructors.
+    if (this.#isCreatingComponent) {
+      return this.currentContexts();
+    }
+
+    return null;
+  }
+
+  createComponent() {
+    // Indicates that a component instance is being created, see
+    // "contextsFor" above for how we use this.
+    this.#isCreatingComponent = true;
   }
 }
