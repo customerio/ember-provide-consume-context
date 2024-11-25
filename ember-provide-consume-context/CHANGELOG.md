@@ -1,5 +1,11 @@
 # ember-provide-consume-context
 
+## 0.6.0
+
+### Minor Changes
+
+- 16d6938: Register contexts at construct time
+
 ## 0.5.0
 
 ### Minor Changes
