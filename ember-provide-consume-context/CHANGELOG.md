@@ -1,5 +1,11 @@
 # ember-provide-consume-context
 
+## 0.6.1
+
+### Patch Changes
+
+- 62b1267: Avoid infinite loops when reading context values at construct time
+
 ## 0.6.0
 
 ### Minor Changes
