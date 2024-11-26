@@ -54,11 +54,11 @@ export class ProvideConsumeContextContainer {
   // component instance.
   // "parentContexts" contain references to contexts coming from "above", and
   // are used to read values from (which allows a component to provide and consume the same key)
-  parentContexts = new WeakMap<any, Contexts>();
+  parentContexts = new WeakMap<any, Contexts | null>();
   // "nextContexts" are context maps used to propagate context values down
   // into the component tree, which includes the merged providers from the
   // current component (if any)
-  nextContexts = new WeakMap<any, Contexts>();
+  nextContexts = new WeakMap<any, Contexts | null>();
 
   // Global contexts are registered by test-support helpers to allow easily
   // providing context values in tests.
@@ -168,8 +168,13 @@ export class ProvideConsumeContextContainer {
   private registerComponent(component: any) {
     const currentContexts = this.currentContexts();
 
-    this.parentContexts.set(component, currentContexts);
-    this.nextContexts.set(component, currentContexts);
+    if (Object.keys(currentContexts).length > 0) {
+      this.parentContexts.set(component, currentContexts);
+      this.nextContexts.set(component, currentContexts);
+    } else {
+      this.parentContexts.set(component, null);
+      this.nextContexts.set(component, null);
+    }
   }
 
   currentContexts() {
