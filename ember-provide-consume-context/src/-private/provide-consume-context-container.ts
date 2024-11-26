@@ -52,7 +52,13 @@ export class ProvideConsumeContextContainer {
   // not the VM ones).
   // The values are objects that map a string ID (provider ID) to the provider
   // component instance.
-  contexts = new WeakMap<any, Contexts>();
+  // "parentContexts" contain references to contexts coming from "above", and
+  // are used to read values from (which allows a component to provide and consume the same key)
+  parentContexts = new WeakMap<any, Contexts>();
+  // "nextContexts" are context maps used to propagate context values down
+  // into the component tree, which includes the merged providers from the
+  // current component (if any)
+  nextContexts = new WeakMap<any, Contexts>();
 
   // Global contexts are registered by test-support helpers to allow easily
   // providing context values in tests.
@@ -135,9 +141,11 @@ export class ProvideConsumeContextContainer {
   }
 
   private registerProvider(provider: any) {
-    const providerContexts: Contexts = this.currentContexts();
+    const parentContexts: Contexts = this.currentContexts();
+    const mergedContexts: Contexts = { ...parentContexts };
 
     const registeredContexts = provider[EMBER_PROVIDE_CONSUME_CONTEXT_KEY];
+
     // If the provider has registered contexts, store references
     // to them on the current contexts object
     if (registeredContexts != null) {
@@ -145,7 +153,7 @@ export class ProvideConsumeContextContainer {
         registeredContexts as Record<keyof ContextRegistry, string>,
       ).forEach(([contextKey, key]) => {
         if (key in provider) {
-          providerContexts[contextKey] = {
+          mergedContexts[contextKey] = {
             instance: provider,
             key,
           };
@@ -153,16 +161,15 @@ export class ProvideConsumeContextContainer {
       });
     }
 
-    this.contexts.set(provider, providerContexts);
+    this.parentContexts.set(provider, parentContexts);
+    this.nextContexts.set(provider, mergedContexts);
   }
 
   private registerComponent(component: any) {
     const currentContexts = this.currentContexts();
 
-    // If a current context reference or global contexts exist, register them to the component
-    if (Object.keys(currentContexts).length > 0) {
-      this.contexts.set(component, currentContexts);
-    }
+    this.parentContexts.set(component, currentContexts);
+    this.nextContexts.set(component, currentContexts);
   }
 
   currentContexts() {
@@ -170,8 +177,11 @@ export class ProvideConsumeContextContainer {
 
     const globalContexts = this.#globalContexts ?? {};
 
-    if (this.contexts.has(current) || Object.keys(globalContexts).length > 0) {
-      const context = this.contexts.get(current);
+    if (
+      this.nextContexts.has(current) ||
+      Object.keys(globalContexts).length > 0
+    ) {
+      const context = this.nextContexts.get(current);
       return { ...globalContexts, ...context };
     }
 
@@ -179,8 +189,8 @@ export class ProvideConsumeContextContainer {
   }
 
   contextsFor(component: any) {
-    if (this.contexts.has(component)) {
-      return this.contexts.get(component);
+    if (this.parentContexts.has(component)) {
+      return this.parentContexts.get(component);
     }
 
     // If a context for this component is not yet registered, but
