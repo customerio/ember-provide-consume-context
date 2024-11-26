@@ -972,4 +972,60 @@ module('Integration | Decorators', function (hooks) {
     assert.dom('#content-1').hasText('1');
     assert.dom('#content-2').hasText('2');
   });
+
+  test('provider that references its own context and reading context value at construct time', async function (assert) {
+    class TestProviderComponent extends Component<{
+      Element: HTMLDivElement;
+      Blocks: {
+        default: [];
+      };
+    }> {
+      @consume('my-test-context') parentContextValue!: number;
+
+      get nextContextValue() {
+        return (this.parentContextValue ?? 0) + 1;
+      }
+    }
+
+    setComponentTemplate(
+      // @ts-ignore
+      hbs`{{! @glint-ignore }}
+        <ContextProvider @key="my-test-context" @value={{this.nextContextValue}}>{{yield}}</ContextProvider>
+      `,
+      TestProviderComponent,
+    );
+
+    class TestConsumerComponent extends Component<{
+      Element: HTMLDivElement;
+    }> {
+      @consume('my-test-context') contextValue!: number;
+
+      readValue = this.contextValue;
+    }
+
+    setComponentTemplate(
+      // @ts-ignore
+      hbs`{{! @glint-ignore }}
+        <div id="content">{{this.readValue}}</div>
+      `,
+      TestConsumerComponent,
+    );
+
+    interface TestContext {
+      TestProviderComponent: typeof TestProviderComponent;
+      TestConsumerComponent: typeof TestConsumerComponent;
+    }
+    (this as unknown as TestContext).TestProviderComponent =
+      TestProviderComponent;
+    (this as unknown as TestContext).TestConsumerComponent =
+      TestConsumerComponent;
+
+    await render<TestContext>(hbs`
+      <this.TestProviderComponent>
+        <this.TestConsumerComponent />
+      </this.TestProviderComponent>
+    `);
+
+    assert.dom('#content').hasText('1');
+  });
 });

@@ -158,11 +158,7 @@ export class ProvideConsumeContextContainer {
 
   private registerComponent(component: any) {
     const currentContexts = this.currentContexts();
-
-    // If a current context reference or global contexts exist, register them to the component
-    if (Object.keys(currentContexts).length > 0) {
-      this.contexts.set(component, currentContexts);
-    }
+    this.contexts.set(component, currentContexts);
   }
 
   currentContexts() {
