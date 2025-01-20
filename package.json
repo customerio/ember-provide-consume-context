@@ -11,7 +11,7 @@
     "lint": "npm run lint --workspaces --if-present",
     "lint:fix": "npm run lint:fix --workspaces --if-present",
     "prepare": "npm run build",
-    "start": "concurrently 'npm:start:*' --restart-after 5000 --prefix-colors cyan,white,yellow",
+    "start": "concurrently 'npm:start:*' --restart-after 5000 --prefixColors auto",
     "start:addon": "npm start --workspace ember-provide-consume-context -- --no-watch.clearScreen",
     "start:test-app": "npm start --workspace test-app",
     "test": "npm run test --workspaces --if-present",
@@ -19,10 +19,12 @@
     "version": "changeset version && npm install --package-lock-only",
     "release": "npm run build && changeset publish"
   },
+  "packageManager": "npm@11.0.0",
   "devDependencies": {
+    "@glint/core": "^1.2.1",
     "concurrently": "^8.2.0",
     "prettier": "^3.0.3",
-    "prettier-plugin-ember-template-tag": "^1.1.0"
+    "prettier-plugin-ember-template-tag": "^2.0.2"
   },
   "workspaces": [
     "ember-provide-consume-context",
