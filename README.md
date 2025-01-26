@@ -5,7 +5,7 @@ having to pass arguments at each level (i.e. no prop drilling).
 
 ## Compatibility
 
-- Ember.js v4.8 or above
+- Ember.js v4.12 or above
 - Embroider or ember-auto-import v2
 
 ## Installation

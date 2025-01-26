@@ -1,5 +1,5 @@
-import { getContext } from '@ember/test-helpers';
-import type { TestContext } from '@ember/test-helpers';
+import { getContext } from '@ember/test-helpers/setup-context';
+import type { TestContext } from '@ember/test-helpers/setup-context';
 import type { ProvideConsumeContextContainer } from '../-private/provide-consume-context-container';
 import type ContextRegistry from '../context-registry';
 
