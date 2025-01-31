@@ -1,5 +1,11 @@
 # ember-provide-consume-context
 
+## 0.7.0
+
+### Minor Changes
+
+- 5a913ea: Widen Peers
+
 ## 0.6.1
 
 ### Patch Changes
