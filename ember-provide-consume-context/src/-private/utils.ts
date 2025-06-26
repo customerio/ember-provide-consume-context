@@ -4,6 +4,7 @@ import {
   importSync,
   macroCondition,
 } from '@embroider/macros';
+import { isDestroying, isDestroyed } from '@ember/destroyable';
 import type Owner from '@ember/owner';
 
 let getOwner: (context: unknown) => Owner | undefined;
@@ -34,6 +35,8 @@ export function getProvider(owner: any, contextKey: keyof ContextRegistry) {
 }
 
 export function hasContext(owner: any, contextKey: keyof ContextRegistry) {
+  if (isDestroyed(owner) || isDestroying(owner)) return false;
+
   const provider = getProvider(owner, contextKey);
   return provider != null;
 }
