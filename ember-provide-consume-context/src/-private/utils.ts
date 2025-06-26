@@ -17,9 +17,12 @@ if (macroCondition(dependencySatisfies('ember-source', '>=4.10.0'))) {
 
 // TODO: See if we can type the owner
 export function getProvider(owner: any, contextKey: keyof ContextRegistry) {
-  if (isDestroyed(owner) || isDestroying(owner)) return false;
+  const appOwner = getOwner(owner);
 
-  const renderer = getOwner(owner)?.lookup('renderer:-dom') as any;
+  // We can't call .lookup on a destroyed owner
+  if (isDestroyed(appOwner) || isDestroying(appOwner)) return false;
+
+  const renderer = appOwner?.lookup('renderer:-dom') as any;
 
   if (renderer == null) {
     return null;
