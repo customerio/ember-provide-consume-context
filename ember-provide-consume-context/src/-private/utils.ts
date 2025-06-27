@@ -20,7 +20,7 @@ export function getProvider(owner: any, contextKey: keyof ContextRegistry) {
   const appOwner = getOwner(owner);
 
   // We can't call .lookup on a destroyed owner
-  if (isDestroyed(appOwner) || isDestroying(appOwner)) return false;
+  if (isDestroyed(appOwner) || isDestroying(appOwner)) return null;
 
   const renderer = appOwner?.lookup('renderer:-dom') as any;
 
