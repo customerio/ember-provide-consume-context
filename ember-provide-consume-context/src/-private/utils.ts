@@ -4,6 +4,7 @@ import {
   importSync,
   macroCondition,
 } from '@embroider/macros';
+import { isDestroying, isDestroyed } from '@ember/destroyable';
 import type Owner from '@ember/owner';
 
 let getOwner: (context: unknown) => Owner | undefined;
@@ -16,7 +17,14 @@ if (macroCondition(dependencySatisfies('ember-source', '>=4.10.0'))) {
 
 // TODO: See if we can type the owner
 export function getProvider(owner: any, contextKey: keyof ContextRegistry) {
-  const renderer = getOwner(owner)?.lookup('renderer:-dom') as any;
+  const appOwner = getOwner(owner);
+
+  // We can't call .lookup on a destroyed owner
+  if (isDestroyed(appOwner as any) || isDestroying(appOwner as any)) {
+    return null;
+  }
+
+  const renderer = appOwner?.lookup('renderer:-dom') as any;
 
   if (renderer == null) {
     return null;
