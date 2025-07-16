@@ -1,5 +1,11 @@
 # ember-provide-consume-context
 
+## 0.7.1
+
+### Patch Changes
+
+- 30cb898: Guard against owner access when the owner is destroyed
+
 ## 0.7.0
 
 ### Minor Changes
