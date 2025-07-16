@@ -14,7 +14,6 @@
     "start": "concurrently 'npm:start:*' --restart-after 5000 --prefix-colors cyan,white,yellow",
     "start:addon": "npm start --workspace ember-provide-consume-context -- --no-watch.clearScreen",
     "start:test-app": "npm start --workspace test-app",
-    "start:test-app-ember-6": "npm start --workspace test-app-ember-6",
     "test": "npm run test --workspaces --if-present",
     "test:ember": "npm run test:ember --workspaces --if-present",
     "version": "changeset version && npm install --package-lock-only",
@@ -27,8 +26,7 @@
   },
   "workspaces": [
     "ember-provide-consume-context",
-    "test-app",
-    "test-app-ember-6"
+    "test-app"
   ],
   "dependencies": {
     "@changesets/cli": "^2.26.2"
