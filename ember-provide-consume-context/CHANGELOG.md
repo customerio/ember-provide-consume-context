@@ -1,5 +1,11 @@
 # ember-provide-consume-context
 
+## 0.8.0
+
+### Minor Changes
+
+- 05c81fb: Fix addon for Ember 6
+
 ## 0.7.1
 
 ### Patch Changes
