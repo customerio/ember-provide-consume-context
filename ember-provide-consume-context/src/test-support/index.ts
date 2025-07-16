@@ -42,7 +42,10 @@ export function provide<
       throw new Error('Could not find "renderer:-dom" on owner');
     }
 
-    const container = renderer._runtime?.env?.provideConsumeContextContainer as
+    // In Ember 6 the path to env is renderer._context.env,
+    // before that it was renderer._runtime.env
+    const env = renderer._runtime?.env ?? renderer._context?.env;
+    const container = env?.provideConsumeContextContainer as
       | ProvideConsumeContextContainer
       | undefined;
 

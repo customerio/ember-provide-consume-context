@@ -15,7 +15,7 @@ interface ContextProviderSignature<K extends keyof ContextRegistry> {
 export default class ContextProvider<
   K extends keyof ContextRegistry,
 > extends Component<ContextProviderSignature<K>> {
-  constructor(owner: unknown, args: ContextProviderSignature<K>['Args']) {
+  constructor(owner: any, args: ContextProviderSignature<K>['Args']) {
     super(owner, args);
 
     setContextMetadataOnContextProviderInstance(this, [[args.key, 'value']]);

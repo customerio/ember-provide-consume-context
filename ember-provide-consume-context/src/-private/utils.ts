@@ -30,8 +30,10 @@ export function getProvider(owner: any, contextKey: keyof ContextRegistry) {
     return null;
   }
 
-  const provideConsumeContextContainer =
-    renderer._runtime?.env?.provideConsumeContextContainer;
+  // In Ember 6 the path to env is renderer._context.env,
+  // before that it was renderer._runtime.env
+  const env = renderer._runtime?.env ?? renderer._context?.env;
+  const provideConsumeContextContainer = env?.provideConsumeContextContainer;
 
   if (provideConsumeContextContainer == null) {
     return null;
