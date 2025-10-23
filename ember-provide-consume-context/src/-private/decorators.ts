@@ -1,6 +1,6 @@
 import type ContextRegistry from '../context-registry';
 import { EMBER_PROVIDE_CONSUME_CONTEXT_KEY } from './provide-consume-context-container';
-import { getContextValue, hasContext } from './utils';
+import { getContextValue } from './utils';
 
 export function provide(contextKey: keyof ContextRegistry) {
   return function decorator(target: any, key: string) {
@@ -11,18 +11,18 @@ export function provide(contextKey: keyof ContextRegistry) {
       EMBER_PROVIDE_CONSUME_CONTEXT_KEY,
     );
 
-    // A class can have multiple @provide decorated properties, we need to
-    // merge the definitions
-    const contextsValue = {
-      ...currentContexts?.value,
-      [contextKey]: key,
-    };
+    let contextsValue = currentContexts?.value;
 
-    Object.defineProperty(target, EMBER_PROVIDE_CONSUME_CONTEXT_KEY, {
-      value: contextsValue,
-      writable: true,
-      configurable: true,
-    });
+    if (contextsValue == null) {
+      contextsValue = new Map();
+      Object.defineProperty(target, EMBER_PROVIDE_CONSUME_CONTEXT_KEY, {
+        value: contextsValue,
+        writable: true,
+        configurable: true,
+      });
+    }
+
+    (contextsValue as Map<keyof ContextRegistry, string>).set(contextKey, key);
   };
 }
 
@@ -32,11 +32,7 @@ export function consume<K extends keyof ContextRegistry>(
   return function decorator() {
     return {
       get(): ContextRegistry[K] | undefined {
-        if (hasContext(this, contextKey)) {
-          return getContextValue(this, contextKey);
-        }
-
-        return undefined;
+        return getContextValue(this, contextKey);
       },
     };
   };

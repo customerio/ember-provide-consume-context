@@ -1,5 +1,5 @@
 import Component from '@glimmer/component';
-import { hasContext, getContextValue } from '../-private/utils';
+import { getContextValue } from '../-private/utils';
 import type ContextRegistry from '../context-registry';
 
 interface ContextConsumerSignature<K extends keyof ContextRegistry> {
@@ -16,10 +16,12 @@ export default class ContextConsumer<
   K extends keyof ContextRegistry,
 > extends Component<ContextConsumerSignature<K>> {
   get contextValue(): ContextRegistry[K] | undefined {
-    if (hasContext(this, this.args.key)) {
-      return getContextValue(this, this.args.key);
+    const result = getContextValue(this, this.args.key);
+
+    if (result === undefined) {
+      return this.args.defaultValue;
     }
 
-    return this.args.defaultValue;
+    return result;
   }
 }

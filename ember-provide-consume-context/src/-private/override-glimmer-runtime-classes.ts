@@ -20,13 +20,6 @@ function overrideVM(runtime: any) {
       try {
         const { type, op1 } = opcode;
 
-        if (type === Op.CreateComponent) {
-          // Let the container know we're instantiating a new component
-          this.context.env.provideConsumeContextContainer?.createComponent();
-          // No need to register "updateWith", a component only instantiates
-          // once, and we don't need to run any further updates
-        }
-
         if (type === Op.GetComponentSelf) {
           // Get the component instance from the VM
           // (that's the VM's component instance, not the Glimmer Component one)
@@ -77,13 +70,6 @@ function overrideVM(runtime: any) {
       // https://github.com/glimmerjs/glimmer-vm/blob/f03632077d98910de7ae3f7c22ebed98cb4f909a/packages/%40glimmer/program/lib/program.ts#L116
       try {
         const { type, op1 } = opcode;
-
-        if (type === Op.CreateComponent) {
-          // Let the container know we're instantiating a new component
-          this.env.provideConsumeContextContainer?.createComponent();
-          // No need to register "updateWith", a component only instantiates
-          // once, and we don't need to run any further updates
-        }
 
         if (type === Op.GetComponentSelf) {
           // Get the component instance from the VM

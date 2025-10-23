@@ -39,8 +39,7 @@ export function getProvider(owner: any, contextKey: keyof ContextRegistry) {
     return null;
   }
 
-  const contextsObject = provideConsumeContextContainer.contextsFor(owner);
-  return contextsObject?.[contextKey];
+  return provideConsumeContextContainer.getContextProvider(owner, contextKey);
 }
 
 export function hasContext(owner: any, contextKey: keyof ContextRegistry) {
@@ -52,9 +51,12 @@ export function getContextValue<K extends keyof ContextRegistry>(
   owner: any,
   contextKey: K,
 ): ContextRegistry[K] | undefined {
-  if (!hasContext(owner, contextKey)) {
+  const result = getProvider(owner, contextKey);
+
+  if (result == null) {
     return undefined;
   }
-  const providerObj = getProvider(owner, contextKey);
-  return providerObj.instance[providerObj.key];
+
+  const [instance, key] = result;
+  return instance[key];
 }
