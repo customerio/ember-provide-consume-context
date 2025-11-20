@@ -40,4 +40,4 @@ jobs:
 
       - name: Publish to npm
         working-directory: ember-provide-consume-context
-        run: npm publish --dry-run --tag test-oidc
+        run: npm publish --tag test-oidc
