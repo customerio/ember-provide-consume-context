@@ -1,20 +1,19 @@
 name: Release
 
+# PR test publish to confirm OIDC is configured correctly
 on:
-  push:
-    branches:
-      - main
+  pull_request:
+    types: [opened, synchronize, reopened]
 
-concurrency: ${{ github.workflow }}-${{ github.ref }}
+permissions:
+  id-token: write
+  contents: read
 
 jobs:
   release:
     name: Release
     runs-on: ubuntu-latest
     environment: release
-    permissions:
-      id-token: write
-      contents: read
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v4
@@ -31,11 +30,13 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Create Release Pull Request or Publish to npm
-        id: changesets
-        uses: changesets/action@dafcd08ca059722e5ab7b05b4069899018ee94c8 # v1.4.10
-        with:
-          version: npm run version
-          publish: npm run release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build
+        run: npm run build
+
+      - name: Set test version
+        working-directory: ember-provide-consume-context
+        run: npm version 0.0.0-test-oidc --no-git-tag-version
+
+      - name: Publish to npm
+        working-directory: ember-provide-consume-context
+        run: npm publish --dry-run --tag test-oidc
