@@ -162,23 +162,29 @@ export class ProvideConsumeContextContainer {
       });
     }
 
+    const isNew = !this.parentContexts.has(provider);
     this.parentContexts.set(provider, parentContexts);
     this.nextContexts.set(provider, mergedContexts);
-    registerDestructor(provider, () => {
-      this.parentContexts.delete(provider);
-      this.nextContexts.delete(provider);
-    });
+    if (isNew) {
+      registerDestructor(provider, () => {
+        this.parentContexts.delete(provider);
+        this.nextContexts.delete(provider);
+      });
+    }
   }
 
   private registerComponent(component: any) {
     const currentContexts = this.currentContexts();
 
+    const isNew = !this.parentContexts.has(component);
     this.parentContexts.set(component, currentContexts);
     this.nextContexts.set(component, currentContexts);
-    registerDestructor(component, () => {
-      this.parentContexts.delete(component);
-      this.nextContexts.delete(component);
-    });
+    if (isNew) {
+      registerDestructor(component, () => {
+        this.parentContexts.delete(component);
+        this.nextContexts.delete(component);
+      });
+    }
   }
 
   currentContexts() {
