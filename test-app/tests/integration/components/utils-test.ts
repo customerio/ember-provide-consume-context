@@ -60,7 +60,7 @@ module('Integration | Utils', function (hooks) {
     (this as unknown as TestContext).TestConsumerComponent =
       TestConsumerComponent;
 
-    await render(hbs`
+    await render<TestContext>(hbs`
       <ContextProvider @key="my-test-context" @value="5">
         <this.TestConsumerComponent />
       </ContextProvider>
