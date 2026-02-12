@@ -6,7 +6,6 @@ import {
 } from '@embroider/macros';
 import { isDestroying, isDestroyed } from '@ember/destroyable';
 import type Owner from '@ember/owner';
-import { setContextValueMetadataOnContextProviderInstance } from './provide-consume-context-container';
 
 let getOwner: (context: unknown) => Owner | undefined;
 
@@ -78,14 +77,4 @@ export function getContextValue<K extends keyof ContextRegistry>(
     return providerObj.instance[providerObj.key];
   }
   return providerObj?.value;
-}
-
-export function setContextValue<K extends keyof ContextRegistry>(
-  component: object,
-  contextKey: K,
-  value: ContextRegistry[K],
-) {
-  return setContextValueMetadataOnContextProviderInstance(component, [
-    [contextKey, value],
-  ]);
 }

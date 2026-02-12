@@ -7,11 +7,6 @@ import type ContextRegistry from '../context-registry';
 export const EMBER_PROVIDE_CONSUME_CONTEXT_KEY = Symbol.for(
   'EMBER_PROVIDE_CONSUME_CONTEXT_KEY',
 );
-// This symbol is used to store context values directly on component instances,
-// when using the "setContextValue" utility function.
-export const EMBER_PROVIDE_CONSUME_CONTEXT_VALUES_KEY = Symbol.for(
-  'EMBER_PROVIDE_CONSUME_CONTEXT_VALUES_KEY',
-);
 
 export function setContextMetadataOnContextProviderInstance(
   instance: any,
@@ -31,29 +26,6 @@ export function setContextMetadataOnContextProviderInstance(
   };
 
   Object.defineProperty(instance, EMBER_PROVIDE_CONSUME_CONTEXT_KEY, {
-    value: contextsValue,
-    writable: true,
-    configurable: true,
-  });
-}
-
-export function setContextValueMetadataOnContextProviderInstance<
-  K extends keyof ContextRegistry,
->(
-  instance: any,
-  contextDefinitions: [contextKey: K, value: ContextRegistry[K]][],
-) {
-  const currentContexts = Object.getOwnPropertyDescriptor(
-    instance,
-    EMBER_PROVIDE_CONSUME_CONTEXT_VALUES_KEY,
-  );
-
-  const contextsValue = {
-    ...currentContexts?.value,
-    ...Object.fromEntries(contextDefinitions),
-  };
-
-  Object.defineProperty(instance, EMBER_PROVIDE_CONSUME_CONTEXT_VALUES_KEY, {
     value: contextsValue,
     writable: true,
     configurable: true,
@@ -152,9 +124,7 @@ export class ProvideConsumeContextContainer {
 
     if (actualComponentInstance != null) {
       const isProviderInstance =
-        actualComponentInstance[EMBER_PROVIDE_CONSUME_CONTEXT_KEY] != null ||
-        actualComponentInstance[EMBER_PROVIDE_CONSUME_CONTEXT_VALUES_KEY] !=
-          null;
+        actualComponentInstance[EMBER_PROVIDE_CONSUME_CONTEXT_KEY] != null;
 
       if (isProviderInstance) {
         this.registerProvider(actualComponentInstance);
@@ -179,8 +149,6 @@ export class ProvideConsumeContextContainer {
     const mergedContexts: Contexts = { ...parentContexts };
 
     const registeredContexts = provider[EMBER_PROVIDE_CONSUME_CONTEXT_KEY];
-    const registeredContextValues =
-      provider[EMBER_PROVIDE_CONSUME_CONTEXT_VALUES_KEY];
 
     // If the provider has registered contexts, store references
     // to them on the current contexts object
@@ -194,22 +162,6 @@ export class ProvideConsumeContextContainer {
             key,
           };
         }
-      });
-    }
-
-    // If the provider has registered context values (via "setContextValue"), store
-    // them on the current object as well
-    if (registeredContextValues != null) {
-      Object.entries(
-        registeredContextValues as Record<
-          keyof ContextRegistry,
-          ContextRegistry[keyof ContextRegistry]
-        >,
-      ).forEach(([contextKey, value]) => {
-        mergedContexts[contextKey] = {
-          instance: provider,
-          value,
-        };
       });
     }
 
