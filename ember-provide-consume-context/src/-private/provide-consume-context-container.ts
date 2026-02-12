@@ -40,9 +40,7 @@ interface ContextEntry {
   // instance is an instance of a Glimmer component, or a "mock provider" from test-support helpers
   instance: any;
   // the property to read from the provider instance
-  key?: string;
-  // the value to provide for this context, if a direct value was registered
-  value?: string;
+  key: string;
 }
 
 export class ProvideConsumeContextContainer {
