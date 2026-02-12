@@ -2,8 +2,15 @@ import type { ComponentInstance } from '@glimmer/interfaces';
 import { Stack } from '@glimmer/util';
 import type ContextRegistry from '../context-registry';
 
+// We set a property with this key on component instances that are context providers, to store
+// the component property names that are registered to specific context names.
 export const EMBER_PROVIDE_CONSUME_CONTEXT_KEY = Symbol.for(
   'EMBER_PROVIDE_CONSUME_CONTEXT_KEY',
+);
+// This symbol is used to store context values directly on component instances,
+// when using the "setContextValue" utility function.
+export const EMBER_PROVIDE_CONSUME_CONTEXT_VALUES_KEY = Symbol.for(
+  'EMBER_PROVIDE_CONSUME_CONTEXT_VALUES_KEY',
 );
 
 export function setContextMetadataOnContextProviderInstance(
@@ -30,6 +37,29 @@ export function setContextMetadataOnContextProviderInstance(
   });
 }
 
+export function setContextValueMetadataOnContextProviderInstance<
+  K extends keyof ContextRegistry,
+>(
+  instance: any,
+  contextDefinitions: [contextKey: K, value: ContextRegistry[K]][],
+) {
+  const currentContexts = Object.getOwnPropertyDescriptor(
+    instance,
+    EMBER_PROVIDE_CONSUME_CONTEXT_VALUES_KEY,
+  );
+
+  const contextsValue = {
+    ...currentContexts?.value,
+    ...Object.fromEntries(contextDefinitions),
+  };
+
+  Object.defineProperty(instance, EMBER_PROVIDE_CONSUME_CONTEXT_VALUES_KEY, {
+    value: contextsValue,
+    writable: true,
+    configurable: true,
+  });
+}
+
 interface Contexts {
   [contextKey: keyof ContextRegistry]: ContextEntry;
 }
@@ -38,7 +68,9 @@ interface ContextEntry {
   // instance is an instance of a Glimmer component, or a "mock provider" from test-support helpers
   instance: any;
   // the property to read from the provider instance
-  key: string;
+  key?: string;
+  // the value to provide for this context, if a direct value was registered
+  value?: string;
 }
 
 export class ProvideConsumeContextContainer {
@@ -120,7 +152,9 @@ export class ProvideConsumeContextContainer {
 
     if (actualComponentInstance != null) {
       const isProviderInstance =
-        actualComponentInstance[EMBER_PROVIDE_CONSUME_CONTEXT_KEY];
+        actualComponentInstance[EMBER_PROVIDE_CONSUME_CONTEXT_KEY] != null ||
+        actualComponentInstance[EMBER_PROVIDE_CONSUME_CONTEXT_VALUES_KEY] !=
+          null;
 
       if (isProviderInstance) {
         this.registerProvider(actualComponentInstance);
@@ -145,6 +179,8 @@ export class ProvideConsumeContextContainer {
     const mergedContexts: Contexts = { ...parentContexts };
 
     const registeredContexts = provider[EMBER_PROVIDE_CONSUME_CONTEXT_KEY];
+    const registeredContextValues =
+      provider[EMBER_PROVIDE_CONSUME_CONTEXT_VALUES_KEY];
 
     // If the provider has registered contexts, store references
     // to them on the current contexts object
@@ -158,6 +194,22 @@ export class ProvideConsumeContextContainer {
             key,
           };
         }
+      });
+    }
+
+    // If the provider has registered context values (via "setContextValue"), store
+    // them on the current object as well
+    if (registeredContextValues != null) {
+      Object.entries(
+        registeredContextValues as Record<
+          keyof ContextRegistry,
+          ContextRegistry[keyof ContextRegistry]
+        >,
+      ).forEach(([contextKey, value]) => {
+        mergedContexts[contextKey] = {
+          instance: provider,
+          value,
+        };
       });
     }
 

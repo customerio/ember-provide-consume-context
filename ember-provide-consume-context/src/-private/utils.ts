@@ -6,6 +6,7 @@ import {
 } from '@embroider/macros';
 import { isDestroying, isDestroyed } from '@ember/destroyable';
 import type Owner from '@ember/owner';
+import { setContextValueMetadataOnContextProviderInstance } from './provide-consume-context-container';
 
 let getOwner: (context: unknown) => Owner | undefined;
 
@@ -15,9 +16,11 @@ if (macroCondition(dependencySatisfies('ember-source', '>=4.10.0'))) {
   getOwner = (importSync('@ember/application') as any).getOwner;
 }
 
-// TODO: See if we can type the owner
-export function getProvider(owner: any, contextKey: keyof ContextRegistry) {
-  const appOwner = getOwner(owner);
+export function getProvider(
+  component: object,
+  contextKey: keyof ContextRegistry,
+) {
+  const appOwner = getOwner(component);
 
   // We can't call .lookup on a destroyed owner
   if (isDestroyed(appOwner as any) || isDestroying(appOwner as any)) {
@@ -39,22 +42,50 @@ export function getProvider(owner: any, contextKey: keyof ContextRegistry) {
     return null;
   }
 
-  const contextsObject = provideConsumeContextContainer.contextsFor(owner);
+  const contextsObject = provideConsumeContextContainer.contextsFor(component);
   return contextsObject?.[contextKey];
 }
 
-export function hasContext(owner: any, contextKey: keyof ContextRegistry) {
-  const provider = getProvider(owner, contextKey);
+/**
+ * Checks whether a context with the given key exists for the provided component.
+ *
+ * @param {Object} component - The component to check for the context.
+ * @param {string} contextKey - The key of the context to check for.
+ */
+export function hasContext(
+  component: object,
+  contextKey: keyof ContextRegistry,
+) {
+  const provider = getProvider(component, contextKey);
   return provider != null;
 }
 
+/**
+ * Returns the value of the context for the given key, if one exists.
+ *
+ * @param {Object} component - The component to check for the context.
+ * @param {string} contextKey - The key of the context to check for.
+ */
 export function getContextValue<K extends keyof ContextRegistry>(
-  owner: any,
+  component: object,
   contextKey: K,
 ): ContextRegistry[K] | undefined {
-  if (!hasContext(owner, contextKey)) {
+  if (!hasContext(component, contextKey)) {
     return undefined;
   }
-  const providerObj = getProvider(owner, contextKey);
-  return providerObj.instance[providerObj.key];
+  const providerObj = getProvider(component, contextKey);
+  if (providerObj?.key != null) {
+    return providerObj.instance[providerObj.key];
+  }
+  return providerObj?.value;
+}
+
+export function setContextValue<K extends keyof ContextRegistry>(
+  component: object,
+  contextKey: K,
+  value: ContextRegistry[K],
+) {
+  return setContextValueMetadataOnContextProviderInstance(component, [
+    [contextKey, value],
+  ]);
 }
