@@ -73,8 +73,8 @@ export function getContextValue<K extends keyof ContextRegistry>(
     return undefined;
   }
   const providerObj = getProvider(component, contextKey);
-  if (providerObj?.key != null) {
-    return providerObj.instance[providerObj.key];
+  if (providerObj == null) {
+    return undefined;
   }
-  return providerObj?.value;
+  return providerObj.instance[providerObj.key];
 }
