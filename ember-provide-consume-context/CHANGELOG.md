@@ -1,5 +1,15 @@
 # ember-provide-consume-context
 
+## 0.9.0
+
+### Minor Changes
+
+- fb09c4c: Export getContext utility for declarative access
+
+### Patch Changes
+
+- 331a773: Register destructors to remove components from map when destroyed
+
 ## 0.8.0
 
 ### Minor Changes
