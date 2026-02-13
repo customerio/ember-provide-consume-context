@@ -1,6 +1,7 @@
 import type { ComponentInstance } from '@glimmer/interfaces';
 import { Stack } from '@glimmer/util';
 import type ContextRegistry from '../context-registry';
+import { registerDestructor } from '@ember/destroyable';
 
 export const EMBER_PROVIDE_CONSUME_CONTEXT_KEY = Symbol.for(
   'EMBER_PROVIDE_CONSUME_CONTEXT_KEY',
@@ -161,15 +162,29 @@ export class ProvideConsumeContextContainer {
       });
     }
 
+    const isNew = !this.parentContexts.has(provider);
     this.parentContexts.set(provider, parentContexts);
     this.nextContexts.set(provider, mergedContexts);
+    if (isNew) {
+      registerDestructor(provider, () => {
+        this.parentContexts.delete(provider);
+        this.nextContexts.delete(provider);
+      });
+    }
   }
 
   private registerComponent(component: any) {
     const currentContexts = this.currentContexts();
 
+    const isNew = !this.parentContexts.has(component);
     this.parentContexts.set(component, currentContexts);
     this.nextContexts.set(component, currentContexts);
+    if (isNew) {
+      registerDestructor(component, () => {
+        this.parentContexts.delete(component);
+        this.nextContexts.delete(component);
+      });
+    }
   }
 
   currentContexts() {
