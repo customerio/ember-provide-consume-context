@@ -1,6 +1,6 @@
 import type ContextRegistry from '../context-registry';
 import { EMBER_PROVIDE_CONSUME_CONTEXT_KEY } from './provide-consume-context-container';
-import { getContextValue, hasContext } from './utils';
+import { getContextValue } from './utils';
 
 export function provide(contextKey: keyof ContextRegistry) {
   return function decorator(target: any, key: string) {
@@ -32,11 +32,7 @@ export function consume<K extends keyof ContextRegistry>(
   return function decorator() {
     return {
       get(): ContextRegistry[K] | undefined {
-        if (hasContext(this, contextKey)) {
-          return getContextValue(this, contextKey);
-        }
-
-        return undefined;
+        return getContextValue(this, contextKey);
       },
     };
   };

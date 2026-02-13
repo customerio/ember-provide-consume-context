@@ -3,6 +3,8 @@ import { Stack } from '@glimmer/util';
 import type ContextRegistry from '../context-registry';
 import { registerDestructor } from '@ember/destroyable';
 
+// We set a property with this key on component instances that are context providers, to store
+// the component property names that are registered to specific context names.
 export const EMBER_PROVIDE_CONSUME_CONTEXT_KEY = Symbol.for(
   'EMBER_PROVIDE_CONSUME_CONTEXT_KEY',
 );
@@ -121,7 +123,7 @@ export class ProvideConsumeContextContainer {
 
     if (actualComponentInstance != null) {
       const isProviderInstance =
-        actualComponentInstance[EMBER_PROVIDE_CONSUME_CONTEXT_KEY];
+        actualComponentInstance[EMBER_PROVIDE_CONSUME_CONTEXT_KEY] != null;
 
       if (isProviderInstance) {
         this.registerProvider(actualComponentInstance);

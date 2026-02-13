@@ -72,9 +72,10 @@ Alternatively, this addon also provides a `ContextProvider` component:
 ```
 
 ### Context consumers
-There are also two ways to retrieve a context value:
-1. Using the `consume` decorator
-2. Using the `ContextConsumer` component
+There are three ways to retrieve a context value:
+1. The `consume` decorator
+2. The `ContextConsumer` component
+3. The `getContext` function
 
 #### `@consume`
 The `consume` decorator allows us to retrieve a context value in a way that's
@@ -101,6 +102,50 @@ context, and it yields the value of the context:
 <ContextConsumer @key="my-context-name" as |value|>
   {{value}}
 </ContextConsumer>
+```
+
+#### `getContext`
+The `getContext` function provides a way to retrieve a context value
+programmatically, without a decorator:
+
+```ts
+import Component from '@glimmer/component';
+import { getContext } from 'ember-provide-consume-context';
+
+export default class MyChildComponent extends Component {
+  // as a class field initializer
+  contextValue = getContext(this, 'my-context-name');
+
+  // in the constructor
+  constructor(owner, args) {
+    super(owner, args);
+    this.contextValue = getContext(this, 'my-context-name');
+  }
+
+  // in a getter
+  get myContextValue() {
+    return getContext(this, 'my-context-name');
+  }
+}
+```
+
+Note that class field initializers and constructors capture the value at
+instantiation time, so they will not update if the provided context value
+changes. Use a getter if you need reactive updates.
+
+`getContext` returns `undefined` if no provider for the given key exists above
+the component in the tree.
+
+There is also a companion `hasContext` function that returns a boolean indicating
+whether a context with the given key exists:
+
+```ts
+import { getContext, hasContext } from 'ember-provide-consume-context';
+
+// inside a component
+if (hasContext(this, 'my-context-name')) {
+  // ...
+}
 ```
 
 __Important note:__ Currently, the `@provide` and `@consume` decorators only
