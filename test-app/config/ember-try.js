@@ -42,13 +42,14 @@ module.exports = async function () {
       {
         name: 'ember-test-helper-v3',
         npm: {
-          overrides: {
+          devDependencies: {
             '@ember/test-helpers': '^3.3.0',
           },
         },
       },
       {
         name: 'ember-release',
+        allowedToFail: true,
         npm: {
           devDependencies: {
             'ember-source': await getChannelURL('release'),

@@ -108,6 +108,7 @@
     "babel-plugin-ember-template-compilation": "^2.2.0",
     "concurrently": "^8.0.1",
     "ember-cli-htmlbars": "^6.2.0",
+    "ember-source": "~4.12.2",
     "ember-template-lint": "^5.11.2",
     "eslint": "^8.33.0",
     "eslint-config-prettier": "^9.0.0",
