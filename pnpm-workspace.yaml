@@ -1,0 +1,7 @@
+packages:
+  - ember-provide-consume-context
+  - test-app
+nodeLinker: hoisted
+strictPeerDependencies: false
+allowBuilds:
+  core-js: true
