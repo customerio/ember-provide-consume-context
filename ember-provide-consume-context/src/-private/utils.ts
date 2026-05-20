@@ -6,6 +6,10 @@ import {
 } from '@embroider/macros';
 import { isDestroying, isDestroyed } from '@ember/destroyable';
 import type Owner from '@ember/owner';
+import {
+  contextContainerFor,
+  type ProvideConsumeContextContainer,
+} from './provide-consume-context-container';
 
 let getOwner: (context: unknown) => Owner | undefined;
 
@@ -15,10 +19,26 @@ if (macroCondition(dependencySatisfies('ember-source', '>=4.10.0'))) {
   getOwner = (importSync('@ember/application') as any).getOwner;
 }
 
+interface ProviderEntry {
+  instance: any;
+  key: string;
+}
+
 export function getProvider(
   component: object,
   contextKey: keyof ContextRegistry,
-) {
+): ProviderEntry | null | undefined {
+  const componentContainer = contextContainerFor(component);
+  const componentContainerProvider = providerFromContainer(
+    componentContainer,
+    component,
+    contextKey,
+  );
+
+  if (componentContainerProvider != null) {
+    return componentContainerProvider;
+  }
+
   const appOwner = getOwner(component);
 
   // We can't call .lookup on a destroyed owner
@@ -37,12 +57,20 @@ export function getProvider(
   const env = renderer._runtime?.env ?? renderer._context?.env;
   const provideConsumeContextContainer = env?.provideConsumeContextContainer;
 
-  if (provideConsumeContextContainer == null) {
-    return null;
-  }
+  return providerFromContainer(
+    provideConsumeContextContainer,
+    component,
+    contextKey,
+  );
+}
 
-  const contextsObject = provideConsumeContextContainer.contextsFor(component);
-  return contextsObject?.[contextKey];
+function providerFromContainer(
+  container: ProvideConsumeContextContainer | null | undefined,
+  component: object,
+  contextKey: keyof ContextRegistry,
+): ProviderEntry | undefined {
+  const contextsObject = container?.contextsFor(component);
+  return contextsObject?.[contextKey] as ProviderEntry | undefined;
 }
 
 /**

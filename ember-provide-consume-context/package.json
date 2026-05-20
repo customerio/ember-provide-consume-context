@@ -60,7 +60,7 @@
   },
   "dependencies": {
     "@embroider/addon-shim": "^1.0.0",
-    "@embroider/macros": "^1.16.6"
+    "@embroider/macros": "^1.20.2"
   },
   "peerDependencies": {
     "ember-source": "^4.8.0 || ^5.0.0 || >= 6.0.0",

@@ -9,6 +9,90 @@ export const EMBER_PROVIDE_CONSUME_CONTEXT_KEY = Symbol.for(
   'EMBER_PROVIDE_CONSUME_CONTEXT_KEY',
 );
 
+export const EMBER_PROVIDE_CONSUME_CONTEXT_CONTAINER_KEY = Symbol.for(
+  'EMBER_PROVIDE_CONSUME_CONTEXT_CONTAINER_KEY',
+);
+
+const EMBER_PROVIDE_CONSUME_CONTEXT_ACTIVE_CONTAINERS_KEY = Symbol.for(
+  'EMBER_PROVIDE_CONSUME_CONTEXT_ACTIVE_CONTAINERS_KEY',
+);
+
+type GlobalWithActiveContainers = typeof globalThis & {
+  [EMBER_PROVIDE_CONSUME_CONTEXT_ACTIVE_CONTAINERS_KEY]?:
+    | ProvideConsumeContextContainer[]
+    | undefined;
+};
+
+function activeContainers() {
+  const global = globalThis as GlobalWithActiveContainers;
+  return (global[EMBER_PROVIDE_CONSUME_CONTEXT_ACTIVE_CONTAINERS_KEY] ??= []);
+}
+
+function activateContainer(container: ProvideConsumeContextContainer) {
+  activeContainers().push(container);
+}
+
+function deactivateContainer(container: ProvideConsumeContextContainer) {
+  const containers = activeContainers();
+  const lastIndex = containers.length - 1;
+
+  if (containers[lastIndex] === container) {
+    containers.pop();
+    return;
+  }
+
+  const index = containers.lastIndexOf(container);
+  if (index !== -1) {
+    containers.splice(index, 1);
+  }
+}
+
+function clearActiveContainer(container: ProvideConsumeContextContainer) {
+  const containers = activeContainers();
+  let index = containers.lastIndexOf(container);
+
+  while (index !== -1) {
+    containers.splice(index, 1);
+    index = containers.lastIndexOf(container);
+  }
+}
+
+function setContextContainerOnComponent(
+  component: any,
+  container: ProvideConsumeContextContainer,
+) {
+  if (component[EMBER_PROVIDE_CONSUME_CONTEXT_CONTAINER_KEY] === container) {
+    return;
+  }
+
+  Object.defineProperty(
+    component,
+    EMBER_PROVIDE_CONSUME_CONTEXT_CONTAINER_KEY,
+    {
+      value: container,
+      writable: true,
+      configurable: true,
+    },
+  );
+}
+
+function unsetContextContainerOnComponent(
+  component: any,
+  container: ProvideConsumeContextContainer,
+) {
+  if (component[EMBER_PROVIDE_CONSUME_CONTEXT_CONTAINER_KEY] === container) {
+    delete component[EMBER_PROVIDE_CONSUME_CONTEXT_CONTAINER_KEY];
+  }
+}
+
+export function contextContainerFor(component: any) {
+  return (
+    component?.[EMBER_PROVIDE_CONSUME_CONTEXT_CONTAINER_KEY] ??
+    activeContainers()[activeContainers().length - 1] ??
+    null
+  );
+}
+
 export function setContextMetadataOnContextProviderInstance(
   instance: any,
   contextDefinitions: [
@@ -78,6 +162,9 @@ export class ProvideConsumeContextContainer {
   }
 
   private reset(): void {
+    this.#isCreatingComponent = false;
+    clearActiveContainer(this);
+
     if (this.stack.size !== 0) {
       while (!this.stack.isEmpty()) {
         this.stack.pop();
@@ -118,10 +205,13 @@ export class ProvideConsumeContextContainer {
     // Update the flag to reflect that.
     // See the "contextsFor" method below for how this flag is used.
     this.#isCreatingComponent = false;
+    deactivateContainer(this);
 
     const actualComponentInstance = (instance?.state as any)?.component;
 
     if (actualComponentInstance != null) {
+      setContextContainerOnComponent(actualComponentInstance, this);
+
       const isProviderInstance =
         actualComponentInstance[EMBER_PROVIDE_CONSUME_CONTEXT_KEY] != null;
 
@@ -171,6 +261,7 @@ export class ProvideConsumeContextContainer {
       registerDestructor(provider, () => {
         this.parentContexts.delete(provider);
         this.nextContexts.delete(provider);
+        unsetContextContainerOnComponent(provider, this);
       });
     }
   }
@@ -185,6 +276,7 @@ export class ProvideConsumeContextContainer {
       registerDestructor(component, () => {
         this.parentContexts.delete(component);
         this.nextContexts.delete(component);
+        unsetContextContainerOnComponent(component, this);
       });
     }
   }
@@ -224,5 +316,6 @@ export class ProvideConsumeContextContainer {
     // Indicates that a component instance is being created, see
     // "contextsFor" above for how we use this.
     this.#isCreatingComponent = true;
+    activateContainer(this);
   }
 }

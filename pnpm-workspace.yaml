@@ -1,6 +1,7 @@
 packages:
   - ember-provide-consume-context
   - test-app
+  - test-app-ember-7
 nodeLinker: hoisted
 strictPeerDependencies: false
 overrides:
@@ -9,5 +10,7 @@ overrides:
   '@glimmer/validator': ^0.84.3
   form-data: 3.0.4
   handlebars: 4.7.9
+syncInjectedDepsAfterScripts:
+  - build
 allowBuilds:
   core-js: true
