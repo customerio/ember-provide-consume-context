@@ -42,24 +42,25 @@
     "dist"
   ],
   "scripts": {
-    "build": "concurrently 'npm:build:*'",
+    "build": "concurrently 'pnpm build:js' 'pnpm build:types'",
     "build:js": "rollup --config",
     "build:types": "glint --declaration",
-    "lint": "concurrently 'npm:lint:*(!fix)' --names 'lint:'",
-    "lint:fix": "concurrently 'npm:lint:*:fix' --names 'fix:'",
+    "lint": "concurrently 'pnpm lint:hbs' 'pnpm lint:js' 'pnpm lint:types' --names 'lint:'",
+    "lint:fix": "concurrently 'pnpm lint:hbs:fix' 'pnpm lint:js:fix' --names 'fix:'",
     "lint:hbs": "ember-template-lint . --no-error-on-unmatched-pattern",
     "lint:hbs:fix": "ember-template-lint . --fix --no-error-on-unmatched-pattern",
     "lint:js": "eslint . --cache",
     "lint:js:fix": "eslint . --fix",
     "lint:types": "glint",
     "prepack": "rollup --config",
-    "start": "concurrently 'npm:start:*'",
+    "start": "concurrently 'pnpm start:js' 'pnpm start:types'",
     "start:js": "rollup --config --watch --no-watch.clearScreen",
     "start:types": "glint --declaration --watch",
     "test": "echo 'A v2 addon does not have tests, run tests in test-app'"
   },
   "dependencies": {
-    "@embroider/addon-shim": "^1.0.0"
+    "@embroider/addon-shim": "^1.0.0",
+    "@embroider/macros": "^1.16.6"
   },
   "peerDependencies": {
     "ember-source": "^4.8.0 || ^5.0.0 || >= 6.0.0",
@@ -107,6 +108,7 @@
     "babel-plugin-ember-template-compilation": "^2.2.0",
     "concurrently": "^8.0.1",
     "ember-cli-htmlbars": "^6.2.0",
+    "ember-source": "~4.12.2",
     "ember-template-lint": "^5.11.2",
     "eslint": "^8.33.0",
     "eslint-config-prettier": "^9.0.0",

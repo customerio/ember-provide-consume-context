@@ -4,28 +4,29 @@
 
 - `git clone <repository-url>`
 - `cd ember-provide-consume-context`
-- `npm install`
+- Use Node.js 26 or newer
+- `pnpm install`
 
 ## Linting
 
-- `npm run lint`
-- `npm run lint:fix`
+- `pnpm lint`
+- `pnpm lint:fix`
 
 ## Building the addon
 
 - `cd ember-provide-consume-context`
-- `npm run build`
+- `pnpm build`
 
 ## Running tests
 
 - `cd test-app`
-- `npm run test` – Runs the test suite on the current Ember version
-- `npm run test:watch` – Runs the test suite in "watch mode"
+- `pnpm test` – Runs the test suite on the current Ember version
+- `pnpm test:ember -- --server` – Runs the Ember tests in watch mode
 
 ## Running the test application
 
 - `cd test-app`
-- `npm run start`
+- `pnpm start`
 - Visit the test application at [http://localhost:4200](http://localhost:4200).
 
 For more information on using ember-cli, visit [https://cli.emberjs.com/release/](https://cli.emberjs.com/release/).

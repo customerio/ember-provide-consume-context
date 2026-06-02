@@ -1,0 +1,13 @@
+packages:
+  - ember-provide-consume-context
+  - test-app
+nodeLinker: hoisted
+strictPeerDependencies: false
+overrides:
+  '@glimmer/manager': ^0.84.3
+  '@glimmer/reference': ^0.84.3
+  '@glimmer/validator': ^0.84.3
+  form-data: 3.0.4
+  handlebars: 4.7.9
+allowBuilds:
+  core-js: true

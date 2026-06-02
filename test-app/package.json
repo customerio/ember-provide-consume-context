@@ -15,17 +15,17 @@
   },
   "scripts": {
     "build": "ember build --environment=production",
-    "lint": "concurrently \"npm:lint:*(!fix)\" --names \"lint:\"",
+    "lint": "concurrently \"pnpm lint:css\" \"pnpm lint:hbs\" \"pnpm lint:js\" \"pnpm lint:types\" --names \"lint:\"",
     "lint:css": "stylelint \"**/*.css\"",
-    "lint:css:fix": "concurrently \"npm:lint:css -- --fix\"",
-    "lint:fix": "concurrently \"npm:lint:*:fix\" --names \"fix:\"",
+    "lint:css:fix": "stylelint \"**/*.css\" --fix",
+    "lint:fix": "concurrently \"pnpm lint:css:fix\" \"pnpm lint:hbs:fix\" \"pnpm lint:js:fix\" --names \"fix:\"",
     "lint:hbs": "ember-template-lint .",
     "lint:hbs:fix": "ember-template-lint . --fix",
     "lint:js": "eslint . --cache",
     "lint:js:fix": "eslint . --fix",
     "lint:types": "tsc --noEmit; glint",
     "start": "ember serve",
-    "test": "concurrently \"npm:lint\" \"npm:test:*\" --names \"lint,test:\"",
+    "test": "concurrently \"pnpm lint\" \"pnpm test:ember\" --names \"lint,test:\"",
     "test:ember": "ember test"
   },
   "devDependencies": {
@@ -72,7 +72,7 @@
     "ember-cli-inject-live-reload": "^2.1.0",
     "ember-cli-sri": "^2.1.1",
     "ember-cli-terser": "^4.0.2",
-    "ember-cli-typescript": "^5.2.1",
+    "ember-cli-typescript": "^5.3.0",
     "ember-fetch": "^8.1.2",
     "ember-load-initializers": "^2.1.2",
     "ember-modifier": "^4.1.0",
@@ -84,7 +84,7 @@
     "ember-source-channel-url": "^3.0.0",
     "ember-template-lint": "^5.7.2",
     "ember-template-lint-plugin-prettier": "^5.0.0",
-    "ember-try": "^3.0.0",
+    "ember-try": "^4.0.0",
     "eslint": "^8.37.0",
     "eslint-config-prettier": "^8.8.0",
     "eslint-plugin-ember": "^11.5.0",
@@ -103,7 +103,7 @@
     "webpack": "^5.88.2"
   },
   "engines": {
-    "node": "16.* || >= 18"
+    "node": ">=26"
   },
   "ember": {
     "edition": "octane"
