@@ -80,7 +80,7 @@
     "@glimmer/runtime": "^0.84.3",
     "@glimmer/util": "^0.84.3",
     "@glint/core": "^1.1.0",
-    "@glint/environment-ember-loose": "^1.1.0",
+    "@glint/environment-ember-loose": "^1.5.2",
     "@glint/template": "^1.1.0",
     "@rollup/plugin-babel": "^6.0.3",
     "@rollup/plugin-node-resolve": "^15.2.1",
