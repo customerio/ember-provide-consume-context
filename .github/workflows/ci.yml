@@ -63,9 +63,6 @@ jobs:
           - ember-lts-4.12
           - ember-lts-5.4
           - ember-lts-5.8
-          - ember-release
-          - ember-beta
-          - ember-canary
           - ember-test-helper-v3
           - embroider-safe
           - embroider-optimized
