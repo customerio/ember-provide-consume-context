@@ -133,6 +133,121 @@ interface ContextEntry {
   key: string;
 }
 
+/**
+ * A reference to one visible context provider.
+ *
+ * This keeps a reference to the provider instance rather than copying the
+ * current value, so `value` reads stay connected to tracked provider state.
+ */
+export class ContextRef<
+  K extends keyof ContextRegistry = keyof ContextRegistry,
+> {
+  #contextKey: K;
+  #context: ContextEntry;
+
+  constructor(contextKey: K, context: ContextEntry) {
+    this.#contextKey = contextKey;
+    this.#context = context;
+  }
+
+  get contextKey() {
+    return this.#contextKey;
+  }
+
+  get value(): ContextRegistry[K] | undefined {
+    return this.#context.instance[this.#context.key];
+  }
+}
+
+/**
+ * A captured set of context references visible to a component.
+ *
+ * The set of provider references is fixed when the refs are created, but values
+ * are read from the original provider instances. That lets bridged consumers
+ * continue to observe tracked provider values.
+ */
+export class ContextRefs {
+  #contexts: Contexts;
+
+  constructor(contexts: Contexts | null | undefined = null) {
+    this.#contexts = { ...contexts };
+  }
+
+  entries() {
+    return Object.entries(this.#contexts).map(([contextKey, context]) => {
+      return [
+        contextKey,
+        new ContextRef(contextKey, context as ContextEntry),
+      ] as [keyof ContextRegistry, ContextRef];
+    });
+  }
+
+  getRef<K extends keyof ContextRegistry>(
+    contextKey: K,
+  ): ContextRef<K> | undefined {
+    const context = this.#contexts[contextKey];
+
+    if (context == null) {
+      return undefined;
+    }
+
+    return new ContextRef(contextKey, context);
+  }
+
+  get<K extends keyof ContextRegistry>(
+    contextKey: K,
+  ): ContextRegistry[K] | undefined {
+    return this.getRef(contextKey)?.value;
+  }
+}
+
+export type ContextRefsInput = ContextRef | ContextRefs | null | undefined;
+
+/**
+ * Registers an instance as a provider for every context ref.
+ *
+ * `provideContextRefs` is the public API for consumers. This private helper keeps
+ * the same metadata path as the built-in provider component.
+ */
+export function setContextMetadataOnContextRefsProviderInstance(
+  instance: object,
+  contextRefs: ContextRefsInput,
+) {
+  const contextDefinitions = contextRefEntries(contextRefs).map(
+    ([contextKey, contextRef]) => {
+      const propertyKey = `context:${String(contextKey)}`;
+
+      Object.defineProperty(instance, propertyKey, {
+        get() {
+          return contextRef.value;
+        },
+        configurable: true,
+      });
+
+      return [contextKey, propertyKey] as [
+        contextKey: keyof ContextRegistry,
+        propertyKey: string,
+      ];
+    },
+  );
+
+  setContextMetadataOnContextProviderInstance(instance, contextDefinitions);
+}
+
+function contextRefEntries(
+  contextRefs: ContextRefsInput,
+): [keyof ContextRegistry, ContextRef][] {
+  if (contextRefs == null) {
+    return [];
+  }
+
+  if (contextRefs instanceof ContextRef) {
+    return [[contextRefs.contextKey, contextRefs]];
+  }
+
+  return contextRefs.entries();
+}
+
 export class ProvideConsumeContextContainer {
   private stack = new Stack();
 

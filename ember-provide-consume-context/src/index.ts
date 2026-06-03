@@ -1,2 +1,15 @@
 export { provide, consume } from './-private/decorators';
-export { getContextValue as getContext, hasContext } from './-private/utils';
+export {
+  getAllContextRefs,
+  getContextRef,
+  getContextRefs,
+  getContextValue as getContext,
+  hasContext,
+  provideContextRefs,
+} from './-private/utils';
+export { type GetContextRefsOptions } from './-private/utils';
+export {
+  ContextRef,
+  ContextRefs,
+  type ContextRefsInput,
+} from './-private/provide-consume-context-container';

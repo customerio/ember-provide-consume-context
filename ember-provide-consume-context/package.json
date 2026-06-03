@@ -137,6 +137,8 @@
     "app-js": {
       "./components/context-consumer.js": "./dist/_app_/components/context-consumer.js",
       "./components/context-provider.js": "./dist/_app_/components/context-provider.js",
+      "./components/context-snapshot.js": "./dist/_app_/components/context-snapshot.js",
+      "./components/provide-contexts.js": "./dist/_app_/components/provide-contexts.js",
       "./initializers/glimmer-overrides.js": "./dist/_app_/initializers/glimmer-overrides.js"
     }
   }
