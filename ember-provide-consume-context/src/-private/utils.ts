@@ -28,6 +28,8 @@ export function getProvider(
   component: object,
   contextKey: keyof ContextRegistry,
 ): ProviderEntry | null | undefined {
+  // Prefer the container attached while this component rendered. Looking up the
+  // owner renderer can miss trees created with renderComponent.
   const componentContainer = contextContainerFor(component);
   const componentContainerProvider = providerFromContainer(
     componentContainer,

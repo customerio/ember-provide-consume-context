@@ -4,6 +4,7 @@ const getChannelURL = require('ember-source-channel-url');
 
 module.exports = async function () {
   return {
+    // The Vite app needs to build dist before ember test can run against it.
     command: 'pnpm test:ember',
     packageManager: 'pnpm',
     scenarios: [

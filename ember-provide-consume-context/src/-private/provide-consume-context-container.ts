@@ -9,10 +9,15 @@ export const EMBER_PROVIDE_CONSUME_CONTEXT_KEY = Symbol.for(
   'EMBER_PROVIDE_CONSUME_CONTEXT_KEY',
 );
 
+// renderComponent can use an environment that is not the app owner's default
+// renderer environment. Store the container that observed a component directly
+// on the component so @consume reads use the same render tree that created it.
 export const EMBER_PROVIDE_CONSUME_CONTEXT_CONTAINER_KEY = Symbol.for(
   'EMBER_PROVIDE_CONSUME_CONTEXT_CONTAINER_KEY',
 );
 
+// Components can read @consume values during construction, before enter() has
+// the actual component instance to tag with the container above.
 const EMBER_PROVIDE_CONSUME_CONTEXT_ACTIVE_CONTAINERS_KEY = Symbol.for(
   'EMBER_PROVIDE_CONSUME_CONTEXT_ACTIVE_CONTAINERS_KEY',
 );
