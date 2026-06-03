@@ -259,7 +259,9 @@ module('Integration | renderComponent context', function (hooks) {
         provideContextRefs(this, args.contextRefs);
       }
 
-      <template>{{yield}}</template>
+      <template>
+        <div>{{yield}}</div>
+      </template>
     }
 
     class TestHostComponent extends Component {
@@ -337,7 +339,9 @@ module('Integration | renderComponent context', function (hooks) {
         provideContextRefs(this, args.contextRefs);
       }
 
-      <template>{{yield}}</template>
+      <template>
+        <div>{{yield}}</div>
+      </template>
     }
 
     class TestHostComponent extends Component {
