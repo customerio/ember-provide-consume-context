@@ -148,6 +148,169 @@ if (hasContext(this, 'my-context-name')) {
 }
 ```
 
+### Bridging context into `renderComponent` roots
+Components rendered with Ember's `renderComponent` API create a separate
+rendering root. That root can provide and consume its own context normally, but
+it does not automatically inherit context from the DOM element it is mounted
+into.
+
+For example, the consumer below will not see the outer provider just because it
+is mounted into a descendant DOM element:
+
+```gts
+import { getOwner } from '@ember/owner';
+import { renderComponent } from '@ember/renderer';
+import Component from '@glimmer/component';
+import ContextConsumer from 'ember-provide-consume-context/components/context-consumer';
+import ContextProvider from 'ember-provide-consume-context/components/context-provider';
+import { modifier } from 'ember-modifier';
+
+export default class MyComponent extends Component {
+  renderNestedComponent = modifier((element: Element) => {
+    const owner = getOwner(this);
+    if (owner == null) {
+      throw new Error('Could not find owner');
+    }
+
+    const result = renderComponent(
+      <template>
+        <ContextConsumer @key="my-context-name" as |value|>
+          {{value}}
+        </ContextConsumer>
+      </template>,
+      { into: element, owner },
+    );
+
+    return () => result.destroy();
+  });
+
+  <template>
+    <ContextProvider @key="my-context-name" @value="outer">
+      <div {{this.renderNestedComponent}}></div>
+    </ContextProvider>
+  </template>
+}
+```
+
+To bridge the context explicitly, wrap the mount point with `ContextSnapshot`
+and pass the yielded snapshot into the new root. Inside the new root, wrap
+content with `ProvideContexts`:
+
+```gts
+import { getOwner } from '@ember/owner';
+import { renderComponent } from '@ember/renderer';
+import Component from '@glimmer/component';
+import type { ContextRefs } from 'ember-provide-consume-context';
+import ContextConsumer from 'ember-provide-consume-context/components/context-consumer';
+import ContextProvider from 'ember-provide-consume-context/components/context-provider';
+import ContextSnapshot from 'ember-provide-consume-context/components/context-snapshot';
+import ProvideContexts from 'ember-provide-consume-context/components/provide-contexts';
+import { modifier } from 'ember-modifier';
+
+export default class MyComponent extends Component {
+  renderNestedComponent = modifier(
+    (element: Element, [contextRefs]: [ContextRefs]) => {
+      const owner = getOwner(this);
+      if (owner == null) {
+        throw new Error('Could not find owner');
+      }
+
+      const result = renderComponent(
+        <template>
+          <ProvideContexts @contextRefs={{contextRefs}}>
+            <ContextConsumer @key="my-context-name" as |value|>
+              {{value}}
+            </ContextConsumer>
+          </ProvideContexts>
+        </template>,
+        { into: element, owner },
+      );
+
+      return () => result.destroy();
+    },
+  );
+
+  <template>
+    <ContextProvider @key="my-context-name" @value="outer">
+      <ContextSnapshot as |contextRefs|>
+        <div {{this.renderNestedComponent contextRefs}}></div>
+      </ContextSnapshot>
+    </ContextProvider>
+  </template>
+}
+```
+
+`ContextSnapshot` captures the set of visible providers at that point in the
+tree. The captured values are read from the original provider instances, so
+tracked provider values can still update bridged consumers.
+
+If you want to build your own wrapper components, use the equivalent JavaScript
+helpers:
+
+```gts
+import type Owner from '@ember/owner';
+import Component from '@glimmer/component';
+import {
+  getAllContextRefs,
+  getContextRef,
+  getContextRefs,
+  provideContextRefs,
+  type ContextRefs,
+} from 'ember-provide-consume-context';
+
+interface CaptureContextsSignature {
+  Blocks: {
+    default: [ContextRefs];
+  };
+}
+
+export class CaptureContexts extends Component<CaptureContextsSignature> {
+  contextRefs = getAllContextRefs(this);
+
+  <template>{{yield this.contextRefs}}</template>
+}
+
+interface ProvideCapturedContextsSignature {
+  Args: {
+    contextRefs: ContextRefs;
+  };
+  Blocks: {
+    default: [];
+  };
+}
+
+export class ProvideCapturedContexts extends Component<
+  ProvideCapturedContextsSignature
+> {
+  constructor(owner: Owner, args: ProvideCapturedContextsSignature['Args']) {
+    super(owner, args);
+
+    provideContextRefs(this, args.contextRefs);
+  }
+
+  <template>{{yield}}</template>
+}
+```
+
+Use `getContextRef` to bridge one context:
+
+```gts
+contextRef = getContextRef(this, 'my-context-name');
+```
+
+Use `getContextRefs` to bridge selected contexts:
+
+```gts
+contextRefs = getContextRefs(this, {
+  contextKeys: ['my-context-name'],
+});
+```
+
+Use `getAllContextRefs` to bridge every visible context. `getContextRefs`
+requires an options object and returns `undefined` when no options are provided;
+that keeps accidental “capture everything” behavior behind the explicit
+`getAllContextRefs` name.
+
 __Important note:__ Currently, the `@provide` and `@consume` decorators only
 work in components. Providing or consuming context state from Routes,
 Controllers, Helpers or Services does not work.

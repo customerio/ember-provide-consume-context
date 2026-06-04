@@ -60,7 +60,7 @@
   },
   "dependencies": {
     "@embroider/addon-shim": "^1.0.0",
-    "@embroider/macros": "^1.16.6"
+    "@embroider/macros": "^1.20.2"
   },
   "peerDependencies": {
     "ember-source": "^4.8.0 || ^5.0.0 || >= 6.0.0",
@@ -80,7 +80,7 @@
     "@glimmer/runtime": "^0.84.3",
     "@glimmer/util": "^0.84.3",
     "@glint/core": "^1.1.0",
-    "@glint/environment-ember-loose": "^1.1.0",
+    "@glint/environment-ember-loose": "^1.5.2",
     "@glint/template": "^1.1.0",
     "@rollup/plugin-babel": "^6.0.3",
     "@rollup/plugin-node-resolve": "^15.2.1",
@@ -137,6 +137,8 @@
     "app-js": {
       "./components/context-consumer.js": "./dist/_app_/components/context-consumer.js",
       "./components/context-provider.js": "./dist/_app_/components/context-provider.js",
+      "./components/context-snapshot.js": "./dist/_app_/components/context-snapshot.js",
+      "./components/provide-contexts.js": "./dist/_app_/components/provide-contexts.js",
       "./initializers/glimmer-overrides.js": "./dist/_app_/initializers/glimmer-overrides.js"
     }
   }
