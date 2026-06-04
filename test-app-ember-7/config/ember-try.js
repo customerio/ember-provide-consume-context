@@ -6,6 +6,9 @@ module.exports = async function () {
   return {
     // The Vite app needs to build dist before ember test can run against it.
     command: 'pnpm test:ember',
+    // pnpm installs all workspace projects by default, even when run from this
+    // app. Keep ember-try's scenario install scoped to the package it mutates.
+    npmOptions: ['--filter', 'test-app-ember-7'],
     packageManager: 'pnpm',
     scenarios: [
       {
