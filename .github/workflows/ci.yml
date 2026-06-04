@@ -87,6 +87,7 @@ jobs:
   try-scenarios-ember-7:
     name: "ember-7-${{ matrix.try-scenario }}"
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     needs: 'test'
 
     strategy:
@@ -111,5 +112,7 @@ jobs:
       - name: Run Tests
         # Each matrix entry runs in its own job, so there is no follow-up work
         # that needs ember-try to restore the original dependency set.
-        run: pnpm exec ember try:one ${{ matrix.try-scenario }} --skip-cleanup=true
+        # Calling Ember directly avoids pnpm exec's verify-deps-before-run check
+        # before ember-try starts managing the scenario dependencies.
+        run: ./node_modules/.bin/ember try:one ${{ matrix.try-scenario }} --skip-cleanup=true
         working-directory: test-app-ember-7
