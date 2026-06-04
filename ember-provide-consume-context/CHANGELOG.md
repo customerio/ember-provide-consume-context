@@ -1,5 +1,11 @@
 # ember-provide-consume-context
 
+## 0.10.0
+
+### Minor Changes
+
+- 1181097: Fix context lookup for components rendered with Ember's `renderComponent` API and add explicit context ref helpers for bridging separate render roots.
+
 ## 0.9.0
 
 ### Minor Changes
