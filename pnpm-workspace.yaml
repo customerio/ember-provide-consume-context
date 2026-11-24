@@ -10,6 +10,14 @@ overrides:
   '@glimmer/validator': ^0.84.3
   form-data: 3.0.4
   handlebars: 4.7.9
+  '@babel/runtime': ^7.26.10
+  ansi-html: ^0.0.9
+  tmp: ^0.2.4
+  sane: ^5.0.1
+  find-yarn-workspace-root: ^2.0.0
+  clean-css-promise>clean-css: ^4.1.11
+  '@typescript-eslint/typescript-estree>minimatch': ^9.0.7
+  '@ember-tooling/blueprint-model>diff': ^8.0.3
 syncInjectedDepsAfterScripts:
   - build
 allowBuilds:
